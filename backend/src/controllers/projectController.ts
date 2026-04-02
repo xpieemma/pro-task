@@ -5,6 +5,7 @@ import { Project } from '../models/Project.js';
 import { User } from '../models/User.js';
 import { Activity } from '../models/Activity.js';
 
+
 export const getProjects = asyncHandler(async (req: AuthRequest, res: Response) => {
   const projects = await Project.find({
     $or: [{ owner: req.user!._id }, { collaborators: req.user!._id }],
@@ -33,6 +34,12 @@ export const getProjectById = asyncHandler(async (req: AuthRequest, res: Respons
 
 export const createProject = asyncHandler(async (req: AuthRequest, res: Response) => {
   const { name, description } = req.body;
+  
+  if (!name || name.trim() === '') {
+    res.status(400).json({ message: 'Project Name is required' });
+    return;
+  }
+  
   const project = await Project.create({
     name,
     description,

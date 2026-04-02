@@ -31,6 +31,12 @@ export const createTask = asyncHandler(async (req: AuthRequest, res: Response) =
     return;
   }
   const { title, description, status, dueDate } = req.body;
+
+  if (!title || title.trim() === '') {
+    res.status(400).json({ message: 'Title is required' });
+    return;
+  }
+
   const task = await Task.create({
     title,
     description,

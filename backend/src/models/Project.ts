@@ -3,7 +3,7 @@ import mongoose, { Document, Schema } from 'mongoose';
 export interface IProject extends Document {
   name: string;
   description?: string;
-  owner: Schema.Types.ObjectId;
+  owner: mongoose.Types.ObjectId;
   collaborators: Schema.Types.ObjectId[];
 }
 

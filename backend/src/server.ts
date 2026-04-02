@@ -1,5 +1,5 @@
 import express from 'express';
-import dotenv from 'dotenv';
+import 'dotenv/config';
 import cors from 'cors';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
@@ -7,9 +7,63 @@ import { connectDB } from './config/db.js';
 import authRoutes from './routes/authRoutes.js';
 import projectRoutes from './routes/projectRoutes.js';
 import taskRoutes from './routes/taskRoutes.js';
+import { User } from './models/User.js';
+import { Project } from './models/Project.js';
+import { Task } from './models/Task.js';
+import bcrypt from 'bcryptjs';
 
-dotenv.config();
+
 connectDB();
+
+const seedDemoData = async () => {
+  const demoEmail = 'demo@example.com';
+  let demoUser = await User.findOne({ email: demoEmail });
+  if (!demoUser) {
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash('demodemo', salt);
+    demoUser = await User.create({
+      name: 'Demo User',
+      email: demoEmail,
+      password: hashedPassword,
+    });
+    console.log('Demo user created');
+  }
+
+
+  const demoProject = await Project.findOne({ owner: demoUser._id, name: 'Demo Project' });
+  if (!demoProject) {
+    const project = await Project.create({
+      name: 'Demo Project',
+      description: 'Try the Kanban board, calendar, and real‑time updates!',
+      owner: demoUser._id,
+    });
+
+    
+    await Task.create([
+      {
+        title: 'Explore Kanban board',
+        description: 'Drag me between columns',
+        status: 'To Do',
+        project: project._id,
+      },
+      {
+        title: 'Check Calendar view',
+        description: 'Click the Calendar tab',
+        status: 'In Progress',
+        project: project._id,
+      },
+      {
+        title: 'Invite a collaborator',
+        description: 'Enter a friend’s email',
+        status: 'Done',
+        project: project._id,
+      },
+    ]);
+    console.log('Demo project created');
+  }
+};
+
+seedDemoData().catch(console.error);
 
 const app = express();
 const httpServer = createServer(app);
