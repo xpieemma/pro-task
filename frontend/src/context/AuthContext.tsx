@@ -14,6 +14,8 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   register: (name: string, email: string, password: string) => Promise<void>;
   loginAsGuest: () => Promise<void>;
+  loginAsDemo: () => Promise<void>;
+  navigate: (path: string) => void;
   logout: () => void;
 }
 
@@ -23,6 +25,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const handleAuthSuccess = (data:any, message: string) =>{
+    localStorage.setItem('token', data.token);
+    localStorage.setItem('userInfo', JSON.stringify(data));
+    setUser(data);
+    connectSocket(data.token);
+    toast.success(message);
+    navigate('/dashboard');
+  }
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -79,6 +89,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }
 };
 
+const loginAsDemo = async () => {
+    const { data } = await api.post('/auth/login', { email: 'demo@example.com', password: 'demodemo' });
+   handleAuthSuccess(data, 'Launching Live Demo...');
+  
+};
+
   const logout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('userInfo');
@@ -89,7 +105,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, loginAsGuest, logout }}>
+    <AuthContext.Provider value={{ user, loading, login, register, loginAsGuest, loginAsDemo, navigate, logout }}>
       {children}
     </AuthContext.Provider>
   );

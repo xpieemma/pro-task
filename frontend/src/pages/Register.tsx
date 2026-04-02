@@ -8,7 +8,7 @@ const Register = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [submitting, setSubmitting] = useState(false);
-  const { register } = useAuth();
+  const { register, loginAsGuest } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -67,7 +67,19 @@ const Register = () => {
           </Link>
         </p>
       </div>
+
+      <div className="mt-6 border-t pt-6">
+      <button 
+        type="button"
+        onClick={() => loginAsGuest()}
+        className="w-full py-2 text-gray-500 hover:text-gray-800 transition text-sm"
+      >
+        Don't want an account? <span className="font-bold underline">Try Guest Mode</span>
+      </button>
     </div>
+    </div>
+
+    
   );
 };
 

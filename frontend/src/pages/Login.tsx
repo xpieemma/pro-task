@@ -8,6 +8,13 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const { login, loginAsGuest } = useAuth();    
+  const handleGuest = async () => {
+    try {
+      await loginAsGuest();
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -61,14 +68,14 @@ const Login = () => {
     type="button"
     onClick={async () => { 
       try {
-        await loginAsGuest();
+        await handleGuest
       } catch {
         console.log('Failed to login as guest');
       }
-    }}
+    }} disabled={submitting}
     className="w-full bg-gray-100 text-gray-800 py-3 rounded-lg hover:bg-gray-200 transition font-medium border border-gray-300"
   >
-    Continue as Guest / Live Demo
+    Continue as Guest
   </button>
 </div>
         <p className="mt-4 text-center text-gray-600">

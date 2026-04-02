@@ -1,14 +1,22 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useState } from 'react';
+import toast from 'react-hot-toast';
 
 const Landing = () => {
-  const { login } = useAuth();
+  const { loginAsDemo } = useAuth();
+  const navigate = useNavigate();
+  const [isLaunching, setIsLaunching] = useState(false);
 
   const handleDemoLogin = async () => {
     try {
-      await login('demo@example.com', 'demodemo');
+      setIsLaunching(true);
+      await loginAsDemo();
+      navigate('/dashboard');
     } catch (err) {
-      console.error('Demo login failed', err);
+     toast.error('Demo is busy');
+    } finally {
+      setIsLaunching(false);
     }
   };
 
@@ -37,9 +45,10 @@ const Landing = () => {
           </Link>
           <button
             onClick={handleDemoLogin}
-            className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
-          >
-            Try Demo
+        disabled={isLaunching}
+        className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition disabled:opacity-70"
+      >
+        {isLaunching ? 'Launching...' : 'Try Demo'}
           </button>
         </div>
       </div>
