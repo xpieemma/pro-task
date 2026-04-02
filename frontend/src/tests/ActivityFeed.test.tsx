@@ -50,7 +50,7 @@ describe('ActivityFeed', () => {
       expect(screen.getAllByText('Alice')).toHaveLength(2);
       expect(screen.getByText('created task')).toBeInTheDocument();
       expect(screen.getByText('changed status')).toBeInTheDocument();
-      expect(screen.getByText(/fix login/i)).toBeInTheDocument();
+      expect(screen.getAllByText(/fix login/i)).toHaveLength(2);
     });
   });
 

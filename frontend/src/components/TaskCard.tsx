@@ -25,7 +25,7 @@ const TaskCard = ({ task, onUpdate }: Props) => {
       {...listeners}
       className="bg-white p-3 rounded shadow mb-2 cursor-grab active:cursor-grabbing select-none"
     >
-      <h4 className="font-medium text-gray-800">{task.title}</h4>
+      <h4 data-testid="task-title" className="font-medium text-gray-800">{task.title}</h4>
       {task.description && (
         <p className="text-sm text-gray-500 truncate mt-1">{task.description}</p>
       )}

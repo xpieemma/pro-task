@@ -1,7 +1,8 @@
-import { ReactElement } from 'react';
+import api from '../services/api';
 import { render, RenderOptions } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { vi } from 'vitest';
+import { AuthProvider } from '../context/AuthContext';
 
 
 export const mockSocket = {
@@ -20,18 +21,18 @@ vi.mock('../services/socket', () => ({
 // ─── API mock ─────────────────────────────────────────────────────────────────
 // Tests override per-method behaviour with vi.mocked(api.get).mockResolvedValue(...)
 
-vi.mock('../services/api', () => ({
-  default: {
-    get: vi.fn(),
-    post: vi.fn(),
-    put: vi.fn(),
-    delete: vi.fn(),
-    interceptors: {
-      request: { use: vi.fn() },
-      response: { use: vi.fn() },
-    },
-  },
-}));
+// vi.mock('../services/api', () => ({
+//   default: {
+//     get: vi.fn(),
+//     post: vi.fn(),
+//     put: vi.fn(),
+//     delete: vi.fn(),
+//     interceptors: {
+//       request: { use: vi.fn() },
+//       response: { use: vi.fn() },
+//     },
+//   },
+// }));
 
 // ─── Auth context helper ───────────────────────────────────────────────────────
 
@@ -64,16 +65,21 @@ interface WrapperOptions extends RenderOptions {
   initialEntries?: string[];
 }
 
-export const renderWithRouter = (
-  ui: ReactElement,
-  { initialEntries = ['/'], ...options }: WrapperOptions = {}
-) =>
-  render(ui, {
-    wrapper: ({ children }) => (
-      <MemoryRouter initialEntries={initialEntries}>{children}</MemoryRouter>
-    ),
-    ...options,
-  });
+export const renderWithRouter = (ui: React.ReactElement, { route = '/' } = {}) => {
+  return render(
+    <MemoryRouter 
+      initialEntries={[route]}
+      future={{ 
+        v7_startTransition: true, 
+        v7_relativeSplatPath: true 
+      }}
+    >
+      <AuthProvider>
+        {ui}
+      </AuthProvider>
+    </MemoryRouter>
+  );
+};
 
 // ─── Fake data factories ───────────────────────────────────────────────────────
 

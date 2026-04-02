@@ -68,15 +68,21 @@ seedDemoData().catch(console.error);
 const app = express();
 const httpServer = createServer(app);
 
-const allowedOrigins = [process.env.FRONTEND_URL, 'http://localhost:5173']
+const allowedOrigins = [process.env.FRONTEND_URL, 'http://localhost:5173',
+  'http://localhost'
+]
   .filter((url): url is string => Boolean(url));
 
-app.use(cors({ origin: allowedOrigins }));
+app.use(cors({ origin: allowedOrigins, methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true }));
 app.use(express.json());
 
 const io = new Server(httpServer, {
   cors: { origin: allowedOrigins, credentials: true },
 });
+
+app.options('*', cors({ origin: allowedOrigins, credentials: true }));
 
 app.use('/api/auth', authRoutes);
 app.use('/api/projects', projectRoutes);

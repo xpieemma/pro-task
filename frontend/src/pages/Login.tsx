@@ -7,7 +7,7 @@ const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [submitting, setSubmitting] = useState(false);
-  const { login } = useAuth();
+  const { login, loginAsGuest } = useAuth();    
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -26,6 +26,7 @@ const Login = () => {
       <div className="max-w-md w-full bg-white rounded-xl shadow-md p-8">
         <h2 className="text-2xl font-bold text-gray-800 mb-6">Welcome back</h2>
         <form onSubmit={handleSubmit}>
+
           <input
             type="email"
             placeholder="Email"
@@ -50,6 +51,26 @@ const Login = () => {
             {submitting ? 'Signing in...' : 'Sign In'}
           </button>
         </form>
+        <div className="mt-6">
+  <div className="relative flex py-4 items-center">
+    <div className="flex-grow border-t border-gray-300"></div>
+    <span className="flex-shrink-0 mx-4 text-gray-400 text-sm">or</span>
+    <div className="flex-grow border-t border-gray-300"></div>
+  </div>
+  <button 
+    type="button"
+    onClick={async () => { 
+      try {
+        await loginAsGuest();
+      } catch {
+        console.log('Failed to login as guest');
+      }
+    }}
+    className="w-full bg-gray-100 text-gray-800 py-3 rounded-lg hover:bg-gray-200 transition font-medium border border-gray-300"
+  >
+    Continue as Guest / Live Demo
+  </button>
+</div>
         <p className="mt-4 text-center text-gray-600">
           Don&apos;t have an account?{' '}
           <Link to="/register" className="text-gray-800 font-semibold hover:underline">

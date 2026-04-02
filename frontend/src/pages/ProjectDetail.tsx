@@ -20,6 +20,7 @@ const ProjectDetail = () => {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [activeView, setActiveView] = useState<'kanban' | 'calendar'>('kanban');
+  const [error, setError] = useState(false);
 
   const fetchProject = useCallback(async () => {
     try {
@@ -27,6 +28,7 @@ const ProjectDetail = () => {
       setProject(data);
     } catch {
       toast.error('Failed to load project');
+      setError(true);
     }
   }, [id]);
 
@@ -36,6 +38,7 @@ const ProjectDetail = () => {
       setTasks(data);
     } catch {
       toast.error('Failed to load tasks');
+      setError(true);
     } finally {
       setLoading(false);
     }
@@ -154,6 +157,7 @@ const ProjectDetail = () => {
       task.description?.toLowerCase().includes(search.toLowerCase());
     return matchesStatus && matchesSearch;
   });
+  if (error) return <p role="alert">Failed to load project</p>;
 
   if (loading) return <LoadingSpinner />;
 

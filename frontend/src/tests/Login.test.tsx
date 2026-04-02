@@ -1,8 +1,13 @@
+
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { screen, fireEvent, waitFor } from '@testing-library/react';
 import { renderWithRouter } from '../test/testUtils';
 import { useAuth } from '../context/AuthContext';
 import Login from '../pages/Login';
+
+
+vi.mock('../context/AuthContext' );
+
 vi.mock('../services/api'); 
 
 // Pull the mocked version so we can configure it per-test
