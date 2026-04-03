@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { Request, Response, NextFunction } from 'express';
 import 'dotenv/config';
 import cors from 'cors';
 import { createServer } from 'http';
@@ -10,13 +10,15 @@ import taskRoutes from './routes/taskRoutes.js';
 import { User } from './models/User.js';
 import { Project } from './models/Project.js';
 import { Task } from './models/Task.js';
-import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 
-if (!process.env.JWT_SECRET) {
-  console.error('JWT_SECRET is not defined in environment variables');
-  process.exit(1);
-}
+const requiredEnvVars = ['MONGO_URI', 'JWT_SECRET'];
+requiredEnvVars.forEach((envVar) => {
+  if (!process.env[envVar]) {
+    console.error(`FATAL ERROR: Missing required environment variable: ${envVar}`);
+    process.exit(1);
+  }
+});
 
 const PORT = process.env.PORT || 5000;
 
@@ -24,9 +26,9 @@ const app = express();
 const httpServer = createServer(app);
 
 
-
+const frontendUrl = process.env.FRONTEND_URL?.replace(/\/$/, '');
 const allowedOrigins = [
-  process.env.FRONTEND_URL,
+  frontendUrl,
   'http://localhost:5173',
   'http://localhost'
 ].filter((url): url is string => Boolean(url));
@@ -46,6 +48,15 @@ const io = new Server(httpServer, {
 app.use('/api/auth', authRoutes);
 app.use('/api/projects', projectRoutes);
 app.use('/api/projects/:projectId/tasks', taskRoutes);
+
+
+app.use((err: any, req: Request, res: Response, next: NextFunction) => {
+  const statusCode = res.statusCode === 200 ? 500 : res.statusCode;
+  res.status(statusCode).json({
+    message: err.message,
+    stack: process.env.NODE_ENV === 'production' ? null : err.stack,
+  });
+});
 
 io.use(async (socket, next) => {
   const token = socket.handshake.auth.token;
@@ -71,7 +82,7 @@ io.on('connection', (socket) => {
   console.log(`User ${email} connected`);
   socket.on('join-project', (projectId: string)=> socket.join(`project:${projectId}`));
   socket.on('leave-project', (projectId: string) => socket.leave(`project:${projectId}`));
- socket.on('disconnect', () => {
+  socket.on('disconnect', () => {
     const disconnectedEmail = socket.data.user?.email || 'unknown';
     console.log(`User ${disconnectedEmail} disconnected`);
   });
@@ -83,12 +94,11 @@ const seedDemoData = async () => {
   const demoEmail = 'demo@example.com';
   let demoUser = await User.findOne({ email: demoEmail });
   if (!demoUser) {
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash('demodemo', salt);
     demoUser = await User.create({
       name: 'Demo User',
       email: demoEmail,
-      password: hashedPassword,
+
+      password: 'demodemo', 
     });
     console.log('Demo user created');
   } else {
@@ -134,11 +144,11 @@ const startServer = async () => {
     await connectDB();   
     await seedDemoData();    
     httpServer.listen(PORT, () => console.log(`Server running on port ${PORT}`))
-     .on('error', (err) => console.error('Server failed to start:', err));
+      .on('error', (err) => console.error('Server failed to start:', err));
   } catch (err) {
     console.error('Failed to start server:', err);
     process.exit(1);
   }
 };
 
-startServer(); 
+startServer();
