@@ -1,3 +1,13 @@
+
+export interface Attachment {
+  _id?: string;
+  url: string;
+  public_id?: string;
+  name: string;
+  size?: number;
+  mimeType?: string;
+  uploadedAt: string;
+}
 export interface User {
   _id: string;
   name: string;
@@ -21,6 +31,7 @@ export interface Task {
   status: 'To Do' | 'In Progress' | 'Done';
   dueDate?: string | null;
   project: string;
+  attachments?: Attachment[];
   completed?: boolean;
 }
 

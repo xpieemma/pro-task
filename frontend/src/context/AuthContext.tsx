@@ -43,7 +43,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setUser(parsedUser);
         connectSocket(token);
       } catch  {
-        logout();
+       localStorage.removeItem('token');
+        localStorage.removeItem('userInfo');
+        setUser(null);
         
       }
     }
@@ -53,12 +55,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const login = async (email: string, password: string) => {
   try {
       const { data } = await api.post('/auth/login', { email, password });
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('userInfo', JSON.stringify(data));
-      setUser(data);
-      connectSocket(data.token);
-      toast.success('Logged in successfully');
-      navigate('/dashboard');
       handleAuthSuccess(data, 'Logged in successfully');
   } catch (error: any) {
     toast.error(error.response?.data?.message || 'Login failed');
@@ -68,12 +64,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const register = async (name: string, email: string, password: string) => {
     try {
       const { data } = await api.post('/auth/register', { name, email, password });
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('userInfo', JSON.stringify(data));
-      setUser(data);
-      connectSocket(data.token);
-      toast.success('Account created');
-      navigate('/dashboard');
       handleAuthSuccess(data, 'Account created');
     } catch (error: any) {
       toast.error(error.response?.data?.message || 'Registration failed');
@@ -83,12 +73,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const loginAsGuest = async () => {
   try {
     const { data } = await api.post('/auth/login', { email: 'demo@example.com', password: 'demodemo' });
-    localStorage.setItem('token', data.token);
-    localStorage.setItem('userInfo', JSON.stringify(data));
-    setUser(data);
-    connectSocket(data.token);
-    toast.success('Logged in as guest');
-    navigate('/dashboard');
     handleAuthSuccess(data, 'Logged in as guest');
     return data; //success 
   } catch (err) {

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import PublicLayout from '../../components/PublicLayout';
 
 
@@ -26,13 +26,20 @@ const WeatherMood = () => {
       pressure: data.hourly?.pressure_msl?.[0],
     };
   };
+  const loadingRef = useRef(false);
+
+  useEffect(() => {
+    loadingRef.current = loading;
+  }, [loading]);
 
 
   useEffect(() => {
     let isMounted = true;
+let timeoutTriggered = false;
 
 const timeoutId = setTimeout(() => {
-      if (isMounted && loading) {
+      if (isMounted && loadingRef.current && !timeoutTriggered) {
+        timeoutTriggered = true;
         // Fallback after 10 seconds
         setLocationName('Newark, NJ');
         fetchWeather(40.7357, -74.1724, 'Newark, NJ')
@@ -54,6 +61,7 @@ const timeoutId = setTimeout(() => {
     
       navigator.geolocation.getCurrentPosition(
          async (pos) => {
+          if (!timeoutTriggered) {
         clearTimeout(timeoutId);
         const { latitude, longitude } = pos.coords;
         // Use coordinates directly (skip broken reverse geocoding)
@@ -67,9 +75,11 @@ const timeoutId = setTimeout(() => {
         } finally {
           if (isMounted) setLoading(false);
         }
+      }
       },
       () => {
         // Geolocation error (user denied or timeout)
+        if (!timeoutTriggered) {
         clearTimeout(timeoutId);
         setLocationName('Newark, NJ');
         fetchWeather(40.7357, -74.1724, 'Newark, NJ')
@@ -77,6 +87,7 @@ const timeoutId = setTimeout(() => {
           .catch(() => isMounted && setError(true))
           .finally(() => isMounted && setLoading(false));
       }
+    }
       );
     return () => {
       isMounted = false;
@@ -90,6 +101,16 @@ const timeoutId = setTimeout(() => {
     return '🌞 Pleasant weather – great for creative work.';
   };
 
+if (error || (!loading && !weather)) {
+  return (
+    <PublicLayout title="🌤️ Weather Mood">
+      <div className="bg-white rounded-xl shadow-sm p-6 text-center text-red-600">
+        Unable to load weather data. Please try again later.
+      </div>
+    </PublicLayout>
+  );
+}
+
   return (
     <PublicLayout title="🌤️ Weather Mood">
       <div className="bg-white rounded-xl shadow-sm p-6 text-center">
@@ -98,12 +119,12 @@ const timeoutId = setTimeout(() => {
         ) : (
           <>
             <h2 className="text-2xl font-bold">{locationName}</h2>
-            <div className="text-6xl my-4">{weather.temperature}°F</div>
-            <p className="text-gray-600">Wind: {weather.windspeed} mph</p>
-            <p className="text-gray-600">Humidity: {weather.humidity ?? '--'}%</p>
-            <p className="text-gray-600">Pressure: {weather.pressure ?? '--'} hPa</p>
+            <div className="text-6xl my-4">{weather?.temperature}°F</div>
+            <p className="text-gray-600">Wind: {weather?.windspeed} mph</p>
+            <p className="text-gray-600">Humidity: {weather?.humidity ?? '--'}%</p>
+            <p className="text-gray-600">Pressure: {weather?.pressure ?? '--'} hPa</p>
             <div className="mt-6 p-4 bg-amber-50 rounded-lg">
-              <p className="text-lg">{getMood(weather.temperature)}</p>
+              <p className="text-lg">{getMood(weather?.temperature || 0)}</p>
             </div>
           </>
         )}
