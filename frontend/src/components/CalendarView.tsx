@@ -83,6 +83,7 @@ const CalendarView = ({ tasks = [], projectId, onTaskUpdate, onTaskAdd }: Props)
       title: title.trim(),
       dueDate: start.toISOString(),
       status: 'To Do',
+      project: projectId,
     });
     toast.success('Task scheduled');
   };
