@@ -25,11 +25,19 @@ const TaskCard = ({ task, onUpdate }: Props) => {
       {...listeners}
       className="bg-white p-3 rounded shadow mb-2 cursor-grab active:cursor-grabbing select-none"
     >
+       <div className="flex items-center gap-2">
+    <input
+      type="checkbox"
+      checked={task.completed}
+      onChange={() => onUpdate(task._id, { completed: !task.completed })}
+    />
+      
       <h4 data-testid="task-title" className="font-medium text-gray-800">{task.title}</h4>
-      {task.description && (
+</div>
+      {task.description &&  (
         <p className="text-sm text-gray-500 truncate mt-1">{task.description}</p>
       )}
-      {task.dueDate && (
+      {task.dueDate && !isNaN(new Date(task.dueDate).getTime()) && (
         <p className="text-xs text-gray-400 mt-1">
           Due: {new Date(task.dueDate).toLocaleDateString()}
         </p>

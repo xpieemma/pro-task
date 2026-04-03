@@ -24,7 +24,7 @@ const seedDemoData = async () => {
     demoUser = await User.create({
       name: 'Demo User',
       email: demoEmail,
-      password: hashedPassword,
+      password: 'demodemo',
     });
     console.log('Demo user created');
   }

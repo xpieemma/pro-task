@@ -75,7 +75,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
   const loginAsGuest = async () => {
   try {
-    const { data } = await api.post('/auth/login', { email: 'guest@example.com', password: 'guest123' });
+    const { data } = await api.post('/auth/login', { email: 'demo@example.com', password: 'demodemo' });
     localStorage.setItem('token', data.token);
     localStorage.setItem('userInfo', JSON.stringify(data));
     setUser(data);

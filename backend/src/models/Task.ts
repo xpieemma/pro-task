@@ -6,6 +6,7 @@ export interface ITask extends Document {
   status: 'To Do' | 'In Progress' | 'Done';
   dueDate?: Date | null;
   project: Schema.Types.ObjectId;
+  completed?: boolean;
 }
 
 const taskSchema = new Schema<ITask>(
@@ -19,6 +20,7 @@ const taskSchema = new Schema<ITask>(
     },
     dueDate: { type: Date, default: null },
     project: { type: Schema.Types.ObjectId, required: true, ref: 'Project' },
+    completed: { type: Boolean, default: false },
   },
   { timestamps: true }
 );

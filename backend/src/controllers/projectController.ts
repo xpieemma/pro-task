@@ -1,30 +1,54 @@
 import { Response } from 'express';
 import asyncHandler from 'express-async-handler';
 import { AuthRequest } from '../middleware/auth.js';
-import { Project } from '../models/Project.js';
+import { Project} from '../models/Project.js';
 import { User } from '../models/User.js';
 import { Activity } from '../models/Activity.js';
+
+
+type PopulatedUser = {
+  _id: string;
+  name: string;
+  email: string;
+};
+
+type PopulatedProject = {
+  _id: string;
+  name: string;
+  owner: PopulatedUser;
+  collaborators: PopulatedUser[];
+};
+
 
 
 export const getProjects = asyncHandler(async (req: AuthRequest, res: Response) => {
   const projects = await Project.find({
     $or: [{ owner: req.user!._id }, { collaborators: req.user!._id }],
-  });
-  res.json(projects);
+  })
+  .populate('owner', 'name email _id')
+  .populate('collaborators', 'name email _id')
+  .lean() as unknown as PopulatedProject[];
+  res.json(projects);   
 });
 
 export const getProjectById = asyncHandler(async (req: AuthRequest, res: Response) => {
-  const project = await Project.findById(req.params.id)
-    .populate('owner', 'name email')
-    .populate('collaborators', 'name email');
+const project = await Project.findById(req.params.id)
+  .populate("owner", "name email")
+  .populate("collaborators", "name email")
+  .lean() as unknown as PopulatedProject | null;
   if (!project) {
     res.status(404).json({ message: 'Project not found' });
     return;
   }
-  const isOwner = (project.owner as any)._id.toString() === req.user!._id.toString();
-  const isCollaborator = (project.collaborators as any[]).some(
-    (c) => c._id.toString() === req.user!._id.toString()
-  );
+  // const isOwner = (project.owner as any)._id.toString() === req.user!._id.toString();
+  // const isCollaborator = (project.collaborators as any[]).some(
+  //   (c) => c._id.toString() === req.user!._id.toString()
+  // );
+  const userId = req.user!._id.toString();
+
+const isOwner = project.owner._id.toString() === userId;
+const isCollaborator = project.collaborators.some(c => c._id.toString() === userId);
+
   if (!isOwner && !isCollaborator) {
     res.status(403).json({ message: 'Not authorized' });
     return;

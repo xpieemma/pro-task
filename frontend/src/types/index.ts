@@ -21,6 +21,7 @@ export interface Task {
   status: 'To Do' | 'In Progress' | 'Done';
   dueDate?: string | null;
   project: string;
+  completed?: boolean;
 }
 
 export interface Activity {

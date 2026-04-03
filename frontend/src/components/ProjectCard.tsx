@@ -9,7 +9,14 @@ interface Props {
 
 const ProjectCard = ({ project, onDelete }: Props) => {
   const { user } = useAuth();
-  const isOwner = user?._id === project.owner._id;
+  // const isOwner = user?._id === project.owner._id;
+  const ownerId =
+  typeof project.owner === "string"
+    ? project.owner
+    : project.owner._id;
+
+const isOwner = user?._id === ownerId;
+
 
   return (
     <div className="bg-white rounded-xl shadow-sm hover:shadow-md transition p-5">
@@ -19,7 +26,7 @@ const ProjectCard = ({ project, onDelete }: Props) => {
           <p className="text-gray-600 mb-4 truncate">{project.description}</p>
         )}
         <p className="text-xs text-gray-400 mb-2">
-          Owner: {project.owner.name}
+          Owner: {typeof project.owner === "string" ? "Unknown owner" : project.owner.name}
           {!isOwner && ' · Collaborator'}
         </p>
       </Link>
