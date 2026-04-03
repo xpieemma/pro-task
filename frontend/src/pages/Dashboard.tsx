@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import api from '../services/api';
@@ -16,16 +16,26 @@ const Dashboard = () => {
   const [description, setDescription] = useState('');
   const [creating, setCreating] = useState(false);
 
-  const fetchProjects = async () => {
+  const fetchProjects = useCallback(async () => {
     try {
       const { data } = await api.get('/projects');
-      setProjects(data);
+      setProjects(prev => {
+      const map = new Map<string, Project>();
+
+      // Add existing projects
+      prev.forEach((p: Project) => map.set(p._id, p));
+
+      // Add fetched projects
+      data.forEach((p: Project) => map.set(p._id, p));
+
+      return Array.from(map.values());
+    });
     } catch {
       toast.error('Failed to load projects');
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchProjects();
