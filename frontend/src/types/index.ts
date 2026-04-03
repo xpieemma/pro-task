@@ -33,6 +33,8 @@ export interface Task {
   project: string;
   attachments?: Attachment[];
   completed?: boolean;
+  onRefresh?: () => void;
+  onDelete?: (id: string) => void;
 }
 
 export interface Activity {

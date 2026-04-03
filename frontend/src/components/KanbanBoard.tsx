@@ -29,9 +29,11 @@ interface Props {
   tasks: Task[];
   onUpdate: (id: string, updates: Partial<Task>) => void;
   onDelete: (id: string) => void;
+  onRefresh?: () => Promise<void>;
+  projectOwnerId?: string | undefined
 }
 
-const KanbanBoard = ({ tasks, onUpdate, onDelete }: Props) => {
+const KanbanBoard = ({ tasks, onUpdate, onDelete, onRefresh, projectOwnerId }: Props) => {
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     if (!over) return;
@@ -68,7 +70,7 @@ const KanbanBoard = ({ tasks, onUpdate, onDelete }: Props) => {
                 strategy={verticalListSortingStrategy}
               >
                 {columnTasks.map((task) => (
-                  <TaskCard key={task._id} task={task} onUpdate={onUpdate} onDelete={onDelete} />
+                  <TaskCard key={task._id} task={task} onUpdate={onUpdate} onDelete={onDelete} onRefresh={onRefresh} projectOwnerId={projectOwnerId}  />
                 ))}
               </SortableContext>
             </KanbanColumn>

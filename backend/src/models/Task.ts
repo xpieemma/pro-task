@@ -7,6 +7,7 @@ export interface ITask extends Document {
   dueDate?: Date | null;
   project: Schema.Types.ObjectId;
   completed?: boolean;
+  attachments?: any[];
 }
 
 const taskSchema = new Schema<ITask>(
@@ -21,6 +22,7 @@ const taskSchema = new Schema<ITask>(
     dueDate: { type: Date, default: null },
     project: { type: Schema.Types.ObjectId, required: true, ref: 'Project' },
     completed: { type: Boolean, default: false },
+    attachments: { type: Array, default: [] },
   },
   { timestamps: true }
 );
