@@ -58,6 +58,11 @@ const Login = () => {
             {submitting ? 'Signing in...' : 'Sign In'}
           </button>
         </form>
+        <div className="mt-6 text-center">
+  <Link to="/showcase" className="text-gray-500 text-sm hover:underline">
+    ✨ Explore API Showcase (no login required)
+  </Link>
+</div>
         <div className="mt-6">
   <div className="relative flex py-4 items-center">
     <div className="flex-grow border-t border-gray-300"></div>

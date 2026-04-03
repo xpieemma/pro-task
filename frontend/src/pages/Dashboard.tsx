@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import api from '../services/api';
 import { Project } from '../types';
@@ -98,7 +99,10 @@ const Dashboard = () => {
           className="bg-gray-200 px-4 py-2 rounded-lg hover:bg-gray-300 transition text-sm"
         >
           Logout
-        </button>
+        </button> 
+        <Link to="/showcase" className="bg-gray-100 px-3 py-1 rounded-lg text-sm hover:bg-gray-200">
+  ✦ Showcase
+</Link>
       </div>
 
       <form onSubmit={createProject} className="bg-white rounded-xl shadow-sm p-6 mb-8">
