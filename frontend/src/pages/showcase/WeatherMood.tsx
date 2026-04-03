@@ -1,41 +1,87 @@
 import { useState, useEffect } from 'react';
 import PublicLayout from '../../components/PublicLayout';
 
+
+  interface WeatherData {
+    temperature: number;
+    windspeed: number;
+    humidity?: number;
+    pressure?: number;
+  }
+
 const WeatherMood = () => {
-  const [weather, setWeather] = useState<any>(null);
+  const [weather, setWeather] = useState<WeatherData | null>(null);
   const [loading, setLoading] = useState(true);
   const [locationName, setLocationName] = useState('');
+    const [error, setError] = useState(false);
+  
+ const fetchWeather = async (lat: number, lon: number, cityName: string) => {
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&temperature_unit=fahrenheit&windspeed_unit=mph&hourly=relativehumidity_2m,pressure_msl`;
+    const res = await fetch(url);
+    const data = await res.json();
+    return {
+      temperature: data.current_weather.temperature,
+      windspeed: data.current_weather.windspeed,
+      humidity: data.hourly?.relativehumidity_2m?.[0],
+      pressure: data.hourly?.pressure_msl?.[0],
+    };
+  };
+
 
   useEffect(() => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        async (pos) => {
-          const { latitude, longitude } = pos.coords;
-          // Reverse geocoding
-          const geoRes = await fetch(`https://geocoding-api.open-meteo.com/v1/search?latitude=${latitude}&longitude=${longitude}&count=1`);
-          const geoData = await geoRes.json();
-          const city = geoData.results?.[0]?.name || `${latitude.toFixed(2)}, ${longitude.toFixed(2)}`;
-          setLocationName(city);
-          // const weatherRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true&temperature_unit=fahrenheit&windspeed_unit=mph`);
-          const weatherRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true&temperature_unit=fahrenheit&windspeed_unit=mph&hourly=relativehumidity_2m,pressure_msl`);
-          const data = await weatherRes.json();
-          // setWeather(data.current_weather);
-          setWeather({
-            ...data.current_weather,
-            humidity: data.hourly.relativehumidity_2m?.[0],
-            pressure: data.hourly.pressure_msl?.[0],
-          });
+    let isMounted = true;
 
-          setLoading(false);
-        },
-        () => {
-          setLocationName('Newark, NJ');
-          fetch('https://api.open-meteo.com/v1/forecast?latitude=40.7357&longitude=-74.1724&current_weather=true&temperature_unit=fahrenheit')
-            .then(res => res.json())
-            .then(data => { setWeather(data.current_weather); setLoading(false); });
-        }
-      );
+const timeoutId = setTimeout(() => {
+      if (isMounted && loading) {
+        // Fallback after 10 seconds
+        setLocationName('Newark, NJ');
+        fetchWeather(40.7357, -74.1724, 'Newark, NJ')
+          .then(weatherData => isMounted && setWeather(weatherData))
+          .catch(() => isMounted && setError(true))
+          .finally(() => isMounted && setLoading(false));
+      }
+    }, 10000);
+ if (!navigator.geolocation) {
+    
+      setLocationName('Newark, NJ');
+      fetchWeather(40.7357, -74.1724, 'Newark, NJ')
+        .then(weatherData => isMounted && setWeather(weatherData))
+        .catch(() => isMounted && setError(true))
+        .finally(() => isMounted && setLoading(false));
+      return () => clearTimeout(timeoutId);
     }
+    
+    
+      navigator.geolocation.getCurrentPosition(
+         async (pos) => {
+        clearTimeout(timeoutId);
+        const { latitude, longitude } = pos.coords;
+        // Use coordinates directly (skip broken reverse geocoding)
+        const city = `${latitude.toFixed(2)}, ${longitude.toFixed(2)}`;
+        setLocationName(city);
+        try {
+          const weatherData = await fetchWeather(latitude, longitude, city);
+          if (isMounted) setWeather(weatherData);
+        } catch {
+          if (isMounted) setError(true);
+        } finally {
+          if (isMounted) setLoading(false);
+        }
+      },
+      () => {
+        // Geolocation error (user denied or timeout)
+        clearTimeout(timeoutId);
+        setLocationName('Newark, NJ');
+        fetchWeather(40.7357, -74.1724, 'Newark, NJ')
+          .then(weatherData => isMounted && setWeather(weatherData))
+          .catch(() => isMounted && setError(true))
+          .finally(() => isMounted && setLoading(false));
+      }
+      );
+    return () => {
+      isMounted = false;
+      clearTimeout(timeoutId);
+    };
   }, []);
 
   const getMood = (temp: number) => {

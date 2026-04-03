@@ -19,17 +19,17 @@ const Dashboard = () => {
   const fetchProjects = useCallback(async () => {
     try {
       const { data } = await api.get('/projects');
-      setProjects(prev => {
-      const map = new Map<string, Project>();
+      // setProjects(prev => {
+      // const map = new Map<string, Project>();
 
-      // Add existing projects
-      prev.forEach((p: Project) => map.set(p._id, p));
+      // // Add existing projects
+      // prev.forEach((p: Project) => map.set(p._id, p));
 
-      // Add fetched projects
-      data.forEach((p: Project) => map.set(p._id, p));
+      // // Add fetched projects
+      // data.forEach((p: Project) => map.set(p._id, p));
 
-      return Array.from(map.values());
-    });
+      // return Array.from(map.values());
+      setProjects(data);
     } catch {
       toast.error('Failed to load projects');
     } finally {
@@ -102,7 +102,7 @@ const Dashboard = () => {
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
-      <div className="flex justify-between items-center mb-8">
+      <div className="flex flex-wrap justify-between items-center gap-4 mb-8">
         <h1 className="text-3xl font-bold text-gray-800">Hello, {user?.name}</h1>
         <button
           onClick={logout}

@@ -11,9 +11,73 @@ import { User } from './models/User.js';
 import { Project } from './models/Project.js';
 import { Task } from './models/Task.js';
 import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+
+if (!process.env.JWT_SECRET) {
+  console.error('JWT_SECRET is not defined in environment variables');
+  process.exit(1);
+}
+
+const PORT = process.env.PORT || 5000;
+
+const app = express();
+const httpServer = createServer(app);
 
 
-connectDB();
+
+const allowedOrigins = [
+  process.env.FRONTEND_URL,
+  'http://localhost:5173',
+  'http://localhost'
+].filter((url): url is string => Boolean(url));
+
+app.use(cors({
+  origin: allowedOrigins,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true
+}));
+app.use(express.json());
+
+const io = new Server(httpServer, {
+  cors: { origin: allowedOrigins, credentials: true },
+});
+
+app.use('/api/auth', authRoutes);
+app.use('/api/projects', projectRoutes);
+app.use('/api/projects/:projectId/tasks', taskRoutes);
+
+io.use(async (socket, next) => {
+  const token = socket.handshake.auth.token;
+  if (!token) return next(new Error('Authentication error'));
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { id: string };
+    const user = await User.findById(decoded.id).select('-password');
+    if (!user) return next(new Error('User not found'));
+    socket.data.user = user;
+    next();
+  } catch (err) {
+    if ((err as Error).name === 'JsonWebTokenError') {
+      next(new Error('Invalid token'));
+    } else {
+      console.error('Socket authentication error:', err);
+      next(new Error('Authentication error'));
+    }
+  }
+});
+
+io.on('connection', (socket) => {
+  const email = socket.data.user?.email || 'unknown';
+  console.log(`User ${email} connected`);
+  socket.on('join-project', (projectId: string)=> socket.join(`project:${projectId}`));
+  socket.on('leave-project', (projectId: string) => socket.leave(`project:${projectId}`));
+ socket.on('disconnect', () => {
+    const disconnectedEmail = socket.data.user?.email || 'unknown';
+    console.log(`User ${disconnectedEmail} disconnected`);
+  });
+});
+
+app.set('io', io);
 
 const seedDemoData = async () => {
   const demoEmail = 'demo@example.com';
@@ -24,11 +88,12 @@ const seedDemoData = async () => {
     demoUser = await User.create({
       name: 'Demo User',
       email: demoEmail,
-      password: 'demodemo',
+      password: hashedPassword,
     });
     console.log('Demo user created');
+  } else {
+    console.log('Demo user already exists');
   }
-
 
   const demoProject = await Project.findOne({ owner: demoUser._id, name: 'Demo Project' });
   if (!demoProject) {
@@ -38,7 +103,6 @@ const seedDemoData = async () => {
       owner: demoUser._id,
     });
 
-    
     await Task.create([
       {
         title: 'Explore Kanban board',
@@ -60,58 +124,21 @@ const seedDemoData = async () => {
       },
     ]);
     console.log('Demo project created');
+  } else {
+    console.log('Demo project already exists');
   }
 };
 
-seedDemoData().catch(console.error);
-
-const app = express();
-const httpServer = createServer(app);
-
-const allowedOrigins = [process.env.FRONTEND_URL, 'http://localhost:5173',
-  //'http://localhost'
-]
-  .filter((url): url is string => Boolean(url));
-
-app.use(cors({ origin: allowedOrigins, methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true }));
-app.use(express.json());
-
-const io = new Server(httpServer, {
-  cors: { origin: allowedOrigins, credentials: true },
-});
-
-app.options('*', cors({ origin: allowedOrigins, credentials: true }));
-
-app.use('/api/auth', authRoutes);
-app.use('/api/projects', projectRoutes);
-app.use('/api/projects/:projectId/tasks', taskRoutes);
-
-io.use(async (socket, next) => {
-  const token = socket.handshake.auth.token;
-  if (!token) return next(new Error('Authentication error'));
+const startServer = async () => {
   try {
-    const jwt = await import('jsonwebtoken');
-    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { id: string };
-    const { User } = await import('./models/User.js');
-    const user = await User.findById(decoded.id).select('-password');
-    if (!user) return next(new Error('User not found'));
-    socket.data.user = user;
-    next();
+    await connectDB();   
+    await seedDemoData();    
+    httpServer.listen(PORT, () => console.log(`Server running on port ${PORT}`))
+     .on('error', (err) => console.error('Server failed to start:', err));
   } catch (err) {
-    next(new Error('Invalid token'));
+    console.error('Failed to start server:', err);
+    process.exit(1);
   }
-});
+};
 
-io.on('connection', (socket) => {
-  console.log(`User ${socket.data.user.email} connected`);
-  socket.on('join-project', (projectId: string) => socket.join(`project:${projectId}`));
-  socket.on('leave-project', (projectId: string) => socket.leave(`project:${projectId}`));
-  socket.on('disconnect', () => console.log(`User ${socket.data.user.email} disconnected`));
-});
-
-app.set('io', io);
-
-const PORT = process.env.PORT || 5000;
-httpServer.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+startServer(); 

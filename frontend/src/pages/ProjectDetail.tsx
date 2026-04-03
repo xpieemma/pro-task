@@ -9,6 +9,7 @@ import SearchFilter from '../components/SearchFilter';
 import ActivityFeed from '../components/ActivityFeed';
 import CalendarView from '../components/CalendarView';
 import LoadingSpinner from '../components/LoadingSpinner';
+import { useMemo } from 'react';
 
 const ProjectDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -21,6 +22,8 @@ const ProjectDetail = () => {
   const [statusFilter, setStatusFilter] = useState('all');
   const [activeView, setActiveView] = useState<'kanban' | 'calendar'>('kanban');
   const [error, setError] = useState(false);
+
+
 
   const fetchProject = useCallback(async () => {
     try {
@@ -57,7 +60,9 @@ const ProjectDetail = () => {
     socket.emit('join-project', id);
 
     const handleTaskCreated = (task: Task) => {
-      if (task.project === id) {
+      const projectId = typeof task.project === 'string' ? task.project : (task.project as {_id: string})._id;
+
+      if (projectId === id) {
         setTasks((prev) =>
           prev.some((t) => t._id === task._id) ? prev : [task, ...prev]
         );
@@ -66,14 +71,16 @@ const ProjectDetail = () => {
     const handleTaskUpdated = (updated: Task) => {
       setTasks((prev) => prev.map((t) => (t._id === updated._id ? updated : t)));
     };
-    const handleTaskDeleted = ({ taskId, projectId }: { taskId: string; projectId: string }) => {
-      if (projectId === id) {
+    const handleTaskDeleted = ({ taskId, projectId }: { taskId: string; projectId: string | { _id: string } }) => {
+      const projectIdStr = typeof projectId === 'string' ? projectId : (projectId as { _id: string })._id;
+      if (projectIdStr === id) {
         setTasks((prev) => prev.filter((t) => t._id !== taskId));
       }
     };
     const handleCollaboratorAdded = ({ user }: { user: UserType }) => {
+      setProject((prev) => prev ? { ...prev, collaborators: [...prev.collaborators, user] } : prev);
       toast.success(`${user.name} joined as collaborator`);
-      fetchProject();
+      // fetchProject();
     };
 
     socket.on('task-created', handleTaskCreated);
@@ -88,11 +95,11 @@ const ProjectDetail = () => {
       socket.off('task-deleted', handleTaskDeleted);
       socket.off('collaborator-added', handleCollaboratorAdded);
     };
-  }, [id, fetchProject]);
+  }, [id]);
 
-  // Optimistic add — temp ID replaced when server responds
+  
   const addTask = async (taskData: Partial<Task>) => {
-    const tempId = `temp-${Date.now()}`;
+    const tempId = `temp-${Date.now()}-${Math.random().toString(36).substring(2, 8)}`;
     const tempTask: Task = {
       _id: tempId,
       title: taskData.title ?? '',
@@ -136,8 +143,19 @@ const ProjectDetail = () => {
     }
   };
 
+
   const inviteCollaborator = async () => {
     if (!inviteEmail.trim()) return;
+
+  const isAlreadyCollaborator = project?.collaborators.some(c => c.email === inviteEmail.trim()) ||
+  project?.owner.email === inviteEmail.trim();
+if (isAlreadyCollaborator) {
+  toast.error('User is already a collaborator');
+  return;
+}
+
+
+
     setInviting(true);
     try {
       await api.post(`/projects/${id}/invite`, { email: inviteEmail.trim() });
@@ -150,13 +168,15 @@ const ProjectDetail = () => {
     }
   };
 
-  const filteredTasks = tasks.filter((task) => {
+
+  const filteredTasks = useMemo(() => tasks.filter((task) => {
     const matchesStatus = statusFilter === 'all' || task.status === statusFilter;
     const matchesSearch =
       task.title.toLowerCase().includes(search.toLowerCase()) ||
       task.description?.toLowerCase().includes(search.toLowerCase());
     return matchesStatus && matchesSearch;
-  });
+  }), [tasks, statusFilter, search]);
+
   if (error) return <p role="alert">Failed to load project</p>;
 
   if (loading) return <LoadingSpinner />;

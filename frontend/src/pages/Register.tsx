@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { useAuth } from '../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 const Register = () => {
   const [name, setName] = useState('');
@@ -9,16 +10,33 @@ const Register = () => {
   const [password, setPassword] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const { register, loginAsGuest } = useAuth();
+  const [guestSubmitting, setGuestSubmitting] = useState(false);
+  const navigate = useNavigate();
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
     try {
       await register(name, email, password);
-    } catch {
+      navigate('/dashboard');
+    } catch (err) {
+      console.error('Registration error:', err);
       toast.error('Registration failed');
     } finally {
       setSubmitting(false);
+    }
+  };
+  const handleGuest = async () => {
+    setGuestSubmitting(true);
+    try {
+      await loginAsGuest();
+      navigate('/dashboard');
+    } catch (err) {
+      console.error('Guest login error:', err);
+      toast.error('Guest login failed');
+    } finally {
+      setGuestSubmitting(false);
     }
   };
 
@@ -71,7 +89,8 @@ const Register = () => {
       <div className="mt-6 border-t pt-6">
       <button 
         type="button"
-        onClick={() => loginAsGuest()}
+        onClick={handleGuest}
+        disabled={guestSubmitting}
         className="w-full py-2 text-gray-500 hover:text-gray-800 transition text-sm"
       >
         Don't want an account? <span className="font-bold underline">Try Guest Mode</span>

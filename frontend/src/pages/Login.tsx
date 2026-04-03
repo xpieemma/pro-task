@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { useAuth } from '../context/AuthContext';
 
@@ -8,21 +8,39 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const { login, loginAsGuest } = useAuth();    
-  const handleGuest = async () => {
-    try {
-      await loginAsGuest();
-    } finally {
-      setSubmitting(false);
-    }
-  };
+  const [guestSubmitting, setGuestSubmitting] = useState(false);
+
+
+const navigate = useNavigate();
+const handleGuest = async () => {
+  setGuestSubmitting(true);
+  try {
+    await loginAsGuest();
+    navigate('/dashboard'); 
+  } catch (err) {
+    toast.error('Guest login failed');
+  } finally {
+    setGuestSubmitting(false);
+  }
+};
+
+  
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
+    if (!email || !password) {
+      toast.error('Please fill in all fields');
+      setSubmitting(false);
+      return;
+    }
     try {
       await login(email, password);
-    } catch {
-      toast.error('Invalid credentials');
+      navigate('/dashboard');
+    }catch (err) {
+  console.error('Login error:', err);
+  const message = err instanceof Error ? err.message : 'Login failed. Please try again.';
+  toast.error(message);
     } finally {
       setSubmitting(false);
     }
@@ -35,7 +53,7 @@ const Login = () => {
         <form onSubmit={handleSubmit}>
 
           <input
-            type="email"
+            type="email" autoComplete="email"
             placeholder="Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
@@ -43,7 +61,7 @@ const Login = () => {
             required
           />
           <input
-            type="password"
+            type="password" autoComplete="current-password"
             placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
@@ -57,6 +75,11 @@ const Login = () => {
           >
             {submitting ? 'Signing in...' : 'Sign In'}
           </button>
+           <div className="text-right mb-6">
+  <Link to="/forgot-password" className="text-sm text-gray-500 hover:underline">
+    Forgot password?
+  </Link>
+</div>
         </form>
         <div className="mt-6 text-center">
   <Link to="/showcase" className="text-gray-500 text-sm hover:underline">
@@ -72,10 +95,10 @@ const Login = () => {
   <button 
     type="button"
     onClick={handleGuest}
-    disabled={submitting}
+    disabled={submitting || guestSubmitting}
     className="w-full bg-gray-100 text-gray-800 py-3 rounded-lg hover:bg-gray-200 transition font-medium border border-gray-300"
   >
-    Continue as Guest
+    {guestSubmitting ? 'Loading...' : 'Continue as Guest'}
   </button>
 </div>
         <p className="mt-4 text-center text-gray-600">

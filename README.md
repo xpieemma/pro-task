@@ -1,6 +1,5 @@
-# THANK YOU PER SCHOLAS 🙏
 
-```markdown
+# THANK YOU PER SCHOLAS 🙏
 
 ## 📘 Pro-Tasker
 
