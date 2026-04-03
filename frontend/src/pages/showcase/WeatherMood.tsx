@@ -16,9 +16,16 @@ const WeatherMood = () => {
           const geoData = await geoRes.json();
           const city = geoData.results?.[0]?.name || `${latitude.toFixed(2)}, ${longitude.toFixed(2)}`;
           setLocationName(city);
-          const weatherRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true&temperature_unit=fahrenheit&windspeed_unit=mph`);
+          // const weatherRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true&temperature_unit=fahrenheit&windspeed_unit=mph`);
+          const weatherRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true&temperature_unit=fahrenheit&windspeed_unit=mph&hourly=relativehumidity_2m,pressure_msl`);
           const data = await weatherRes.json();
-          setWeather(data.current_weather);
+          // setWeather(data.current_weather);
+          setWeather({
+            ...data.current_weather,
+            humidity: data.hourly.relativehumidity_2m?.[0],
+            pressure: data.hourly.pressure_msl?.[0],
+          });
+
           setLoading(false);
         },
         () => {
@@ -47,6 +54,8 @@ const WeatherMood = () => {
             <h2 className="text-2xl font-bold">{locationName}</h2>
             <div className="text-6xl my-4">{weather.temperature}°F</div>
             <p className="text-gray-600">Wind: {weather.windspeed} mph</p>
+            <p className="text-gray-600">Humidity: {weather.humidity ?? '--'}%</p>
+            <p className="text-gray-600">Pressure: {weather.pressure ?? '--'} hPa</p>
             <div className="mt-6 p-4 bg-amber-50 rounded-lg">
               <p className="text-lg">{getMood(weather.temperature)}</p>
             </div>

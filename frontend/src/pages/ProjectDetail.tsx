@@ -264,7 +264,11 @@ const ProjectDetail = () => {
       {activeView === 'kanban' ? (
         <>
           <SearchFilter onSearch={setSearch} onFilterStatus={setStatusFilter} />
-          <KanbanBoard tasks={filteredTasks} onUpdate={updateTask} />
+          <KanbanBoard
+            tasks={filteredTasks}
+            onUpdate={updateTask}
+            onDelete={deleteTask}
+          />
         </>
       ) : (
         <CalendarView

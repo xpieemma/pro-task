@@ -13,17 +13,18 @@ const CLIENT_ID_STORAGE = 'spotify_client_id';
 //   };
 //   artists: { name: string }[];
 // };
+type TimeRange = 'short_term' | 'medium_term' | 'long_term'
 
 
 const SpotifyVibe = () => {
-  const [clientId, setClientId] = useState(localStorage.getItem(CLIENT_ID_STORAGE) || '');
-  const [accessToken, setAccessToken] = useState('');
+  const [clientId, setClientId] = useState<string>(localStorage.getItem(CLIENT_ID_STORAGE) || '');
+  const [accessToken, setAccessToken] = useState<string>('');
   const [profile, setProfile] = useState<SpotifyApi.CurrentUsersProfileResponse | null>(null);
   const [topTracks, setTopTracks] = useState<SpotifyApi.TrackObjectFull[]>([]);
   const [topArtists, setTopArtists] = useState<SpotifyApi.ArtistObjectFull[]>([]);
   const [editingClientId, setEditingClientId] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [range, setRange] = useState('short_term');
+  const [range, setRange] = useState<TimeRange>('short_term');
 
 const fetchAllData = async (token: string) => {
   setLoading(true);
@@ -41,7 +42,7 @@ const fetchAllData = async (token: string) => {
   useEffect(() => {
     const hash = window.location.hash.substring(1);
     const params = new URLSearchParams(hash);
-    const token = params.get('access_token');
+    const token = params.get('access_token') as string | null;
     if (token) {
       setAccessToken(token);
       window.history.pushState({}, '', window.location.pathname);
@@ -190,7 +191,7 @@ const fetchAllData = async (token: string) => {
 </div>
 {/* Time Range Toggle */}
 <div className="flex gap-2 mb-4">
-  {['short_term', 'medium_term', 'long_term'].map(r => (
+  {(['short_term', 'medium_term', 'long_term'] as const).map(r => (
     <button
       key={r}
       onClick={() => {

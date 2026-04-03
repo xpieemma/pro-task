@@ -28,9 +28,10 @@ const KanbanColumn = ({ status, children }: ColumnProps) => {
 interface Props {
   tasks: Task[];
   onUpdate: (id: string, updates: Partial<Task>) => void;
+  onDelete: (id: string) => void;
 }
 
-const KanbanBoard = ({ tasks, onUpdate }: Props) => {
+const KanbanBoard = ({ tasks, onUpdate, onDelete }: Props) => {
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     if (!over) return;
@@ -67,7 +68,7 @@ const KanbanBoard = ({ tasks, onUpdate }: Props) => {
                 strategy={verticalListSortingStrategy}
               >
                 {columnTasks.map((task) => (
-                  <TaskCard key={task._id} task={task} onUpdate={onUpdate} />
+                  <TaskCard key={task._id} task={task} onUpdate={onUpdate} onDelete={onDelete} />
                 ))}
               </SortableContext>
             </KanbanColumn>

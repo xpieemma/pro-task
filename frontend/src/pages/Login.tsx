@@ -71,13 +71,8 @@ const Login = () => {
   </div>
   <button 
     type="button"
-    onClick={async () => { 
-      try {
-        await handleGuest
-      } catch {
-        console.log('Failed to login as guest');
-      }
-    }} disabled={submitting}
+    onClick={handleGuest}
+    disabled={submitting}
     className="w-full bg-gray-100 text-gray-800 py-3 rounded-lg hover:bg-gray-200 transition font-medium border border-gray-300"
   >
     Continue as Guest

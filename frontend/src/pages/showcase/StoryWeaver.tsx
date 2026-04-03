@@ -45,7 +45,8 @@ const StoryWeaver = () => {
       await callAI(story);
     } else if (phase === 'user_two_more') {
       // remove temporary AI note if present
-      const cleaned = input.replace(/\[AI suggestion:.*?\]\n\n/, '');
+      // const cleaned = input.replace(/\[AI suggestion:.*?\]\n\n/, '');
+      const cleaned = input.replace(/\[AI suggestion:[\s\S]*?\]\s*/i, '').trim();
       const sentences = cleaned.split(/(?<=[.!?])\s+/).filter(s => s.trim().length > 0);
       if (sentences.length < 2) {
         toast.error('You must write at least two sentences.');
@@ -76,6 +77,18 @@ const StoryWeaver = () => {
             </div>
           ))}
         </div>
+        {aiSuggestion && (
+  <div className="p-2 bg-orange-50 border-l-4 border-orange-500 rounded mb-2">
+    <strong>AI Suggestion:</strong> {aiSuggestion}
+    <button
+      className="ml-2 text-blue-600 underline"
+      onClick={() => setInput(prev => aiSuggestion + "\n\n" + prev)}
+    >
+      Insert
+    </button>
+  </div>
+)}
+
         <textarea
           value={input}
           onChange={(e) => setInput(e.target.value)}

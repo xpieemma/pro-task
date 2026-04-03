@@ -4,7 +4,7 @@ import { AuthRequest } from '../middleware/auth.js';
 import { Project} from '../models/Project.js';
 import { User } from '../models/User.js';
 import { Activity } from '../models/Activity.js';
-
+import { Task } from '../models/Task.js';
 
 type PopulatedUser = {
   _id: string;
@@ -96,6 +96,9 @@ export const deleteProject = asyncHandler(async (req: AuthRequest, res: Response
     res.status(404).json({ message: 'Project not found or unauthorized' });
     return;
   }
+  await Task.deleteMany({ project: project._id });
+await Activity.deleteMany({ project: project._id });
+
   await project.deleteOne();
   const io = req.app.get('io');
   io.emit('project-deleted', { id: req.params.id });

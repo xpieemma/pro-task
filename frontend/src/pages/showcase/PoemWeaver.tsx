@@ -14,16 +14,32 @@ const PoemWeaver = () => {
 
   const askAI = async (context: string) => {
     setWaitingForAI(true);
+    // try {
+    //   const prompt = `You are a poet collaborating with a human. Continue this poem with exactly ONE line. Keep the same mood and style. Do not add extra text.\n\n${context}\n\nYour next line:`;
+    //   const res = await fetch(`https://text.pollinations.ai/${encodeURIComponent(prompt)}`);
+    //   const aiLine = await res.text();
+    //   addLine(aiLine.trim(), 'ai');
+    // } catch (error) {
+    //   toast.error('AI failed. Please try again.');
+    // } finally {
+    //   setWaitingForAI(false);
+    // }
     try {
-      const prompt = `You are a poet collaborating with a human. Continue this poem with exactly ONE line. Keep the same mood and style. Do not add extra text.\n\n${context}\n\nYour next line:`;
-      const res = await fetch(`https://text.pollinations.ai/${encodeURIComponent(prompt)}`);
-      const aiLine = await res.text();
-      addLine(aiLine.trim(), 'ai');
-    } catch (error) {
-      toast.error('AI failed. Please try again.');
-    } finally {
-      setWaitingForAI(false);
-    }
+    const prompt = `You are a poet collaborating with a human. Continue this poem with exactly ONE line. Keep the same mood and style. Do not add extra text.\n\n${context}\n\nYour next line:`;
+
+    const res = await fetch("https://text.pollinations.ai/", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ prompt }),
+    });
+
+    const aiLine = await res.text();
+    addLine(aiLine.trim(), "ai");
+  } catch {
+    toast.error("AI failed. Please try again.");
+  } finally {
+    setWaitingForAI(false);
+  }
   };
 
   const handleSubmit = async () => {
@@ -43,12 +59,17 @@ const PoemWeaver = () => {
     const context = poemLines.map(l => l.text).join('\n');
     const prompt = `Give a short hint (one sentence) for the next line of this poem:\n${context}`;
     try {
-      const res = await fetch(`https://text.pollinations.ai/${encodeURIComponent(prompt)}`);
-      const hintText = await res.text();
-      setHint(hintText);
-    } catch {
-      setHint('Think about contrast, repetition, or a surprising word.');
-    }
+    const res = await fetch("https://text.pollinations.ai/", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ prompt }),
+    });
+
+    const hintText = await res.text();
+    setHint(hintText);
+  } catch {
+    setHint("Think about contrast, repetition, or a surprising word.");
+  }
   };
 
   const reset = () => {

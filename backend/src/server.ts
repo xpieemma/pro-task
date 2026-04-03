@@ -69,7 +69,7 @@ const app = express();
 const httpServer = createServer(app);
 
 const allowedOrigins = [process.env.FRONTEND_URL, 'http://localhost:5173',
-  'http://localhost'
+  //'http://localhost'
 ]
   .filter((url): url is string => Boolean(url));
 

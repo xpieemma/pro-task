@@ -8,15 +8,17 @@ const GalleryPage = () => {
   const [photos, setPhotos] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [showKeyInput, setShowKeyInput] = useState(!apiKey);
+  const [dismissedKeyPrompt, setDismissedKeyPrompt] = useState(false);
 
   const saveKey = () => {
     localStorage.setItem('unsplash_key', apiKey);
     setShowKeyInput(false);
+    setDismissedKeyPrompt(true);
     toast.success('Key saved');
   };
 
   const search = async () => {
-    if (!apiKey) { setShowKeyInput(true); return; }
+    if (!apiKey && !dismissedKeyPrompt) { setShowKeyInput(true); return; }
     setLoading(true);
     try {
       const url = query

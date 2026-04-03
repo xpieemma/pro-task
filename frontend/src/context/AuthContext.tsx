@@ -59,19 +59,26 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       connectSocket(data.token);
       toast.success('Logged in successfully');
       navigate('/dashboard');
+      handleAuthSuccess(data, 'Logged in successfully');
   } catch (error: any) {
     toast.error(error.response?.data?.message || 'Login failed');
   }
   };
 
   const register = async (name: string, email: string, password: string) => {
-    const { data } = await api.post('/auth/register', { name, email, password });
-    localStorage.setItem('token', data.token);
-    localStorage.setItem('userInfo', JSON.stringify(data));
-    setUser(data);
-    connectSocket(data.token);
-    toast.success('Account created');
-    navigate('/dashboard');
+    try {
+      const { data } = await api.post('/auth/register', { name, email, password });
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('userInfo', JSON.stringify(data));
+      setUser(data);
+      connectSocket(data.token);
+      toast.success('Account created');
+      navigate('/dashboard');
+      handleAuthSuccess(data, 'Account created');
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Registration failed');
+      throw error;
+    }
   };
   const loginAsGuest = async () => {
   try {
@@ -82,17 +89,24 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     connectSocket(data.token);
     toast.success('Logged in as guest');
     navigate('/dashboard');
+    handleAuthSuccess(data, 'Logged in as guest');
+    return data; //success 
   } catch (err) {
-    console.error('Guest login failed', err);
+    toast.error('Guest login failed');
+    throw err;
   } finally {
     setLoading(false);
   }
 };
 
 const loginAsDemo = async () => {
-    const { data } = await api.post('/auth/login', { email: 'demo@example.com', password: 'demodemo' });
-   handleAuthSuccess(data, 'Launching Live Demo...');
-  
+    try {
+      const { data } = await api.post('/auth/login', { email: 'demo@example.com', password: 'demodemo' });
+     handleAuthSuccess(data, 'Launching Live Demo...');
+    } catch (err) {
+      toast.error( 'Demo login failed');
+      throw err;
+    }
 };
 
   const logout = () => {
