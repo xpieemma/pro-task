@@ -11,6 +11,9 @@ import { User } from './models/User.js';
 import { Project } from './models/Project.js';
 import { Task } from './models/Task.js';
 import jwt from 'jsonwebtoken';
+import { generateStory } from './controllers/aiController.js';
+import webhookRoutes from './routes/webhookRoutes.js';
+import showcaseRoutes from './routes/showcaseRoutes.js';
 
 const requiredEnvVars = ['MONGO_URI', 'JWT_SECRET'];
 requiredEnvVars.forEach((envVar) => {
@@ -48,7 +51,15 @@ const io = new Server(httpServer, {
 app.use('/api/auth', authRoutes);
 app.use('/api/projects', projectRoutes);
 app.use('/api/projects/:projectId/tasks', taskRoutes);
+app.use('/api/showcase', showcaseRoutes);
+app.post('/api/ai/story', generateStory);
 
+app.use('/api/auth', authRoutes);
+app.use('/api/projects', projectRoutes);
+app.use('/api/projects/:projectId/tasks', taskRoutes);
+
+// GitHub Webhook Listener
+app.use('/api/webhooks', webhookRoutes);
 
 app.use((err: any, req: Request, res: Response, next: NextFunction) => {
   const statusCode = res.statusCode === 200 ? 500 : res.statusCode;

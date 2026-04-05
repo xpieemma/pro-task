@@ -22,21 +22,21 @@ const StudyStudio = () => {
   const [currentCard, setCurrentCard] = useState(0);
   const [showAnswer, setShowAnswer] = useState(false);
 
-  // ✅ Manage Gemini API Key locally
-  const [apiKey, setApiKey] = useState(localStorage.getItem('gemini_api_key') || '');
-  const [isKeySetup, setIsKeySetup] = useState(!!localStorage.getItem('gemini_api_key'));
+
+  const [apiKey, setApiKey] = useState(localStorage.getItem('gemini_api_key0') || '');
+  const [isKeySetup, setIsKeySetup] = useState(!!localStorage.getItem('gemini_api_key0'));
 
   const abortControllerRef = useRef<AbortController | null>(null);
 
   const saveApiKey = (key: string) => {
     if (!key.trim()) return toast.error('Please enter a valid API key');
-    localStorage.setItem('gemini_api_key', key.trim());
+    localStorage.setItem('gemini_api_key0', key.trim());
     setApiKey(key.trim());
     setIsKeySetup(true);
     toast.success('Gemini API Key saved locally!');
   };
 
-  // ✅ Gemini API Integration with Native JSON Mode
+
   const callGemini = async (prompt: string, signal: AbortSignal) => {
     if (!apiKey) throw new Error('API_KEY_MISSING');
     
@@ -44,7 +44,7 @@ const StudyStudio = () => {
     const model = genAI.getGenerativeModel({ 
       model: 'gemini-1.5-flash',
       generationConfig: {
-        responseMimeType: "application/json", // 🔥 Forces 100% valid JSON output
+        responseMimeType: "application/json", 
       }
     });
 
@@ -101,7 +101,7 @@ const StudyStudio = () => {
       
       setDiscussion(parsed);
     } catch (err: any) {
-      if (err.message === 'API_KEY_MISSING') return; // Handled by flashcards error
+      if (err.message === 'API_KEY_MISSING') return; 
       if (err.name !== 'AbortError' && !controller.signal.aborted) {
          console.error(err);
          toast.error('Failed to generate discussion questions');
@@ -128,7 +128,7 @@ const StudyStudio = () => {
   return (
     <PublicLayout title="📚 Study Studio (Powered by Gemini)">
       
-      {/* API Key Setup Banner */}
+  
       {!isKeySetup && (
         <div className="bg-blue-50 border border-blue-200 rounded-xl p-6 mb-6">
           <h3 className="font-bold text-blue-800 mb-2">Connect Google Gemini</h3>
@@ -156,13 +156,13 @@ const StudyStudio = () => {
       )}
 
       <div className="grid md:grid-cols-2 gap-6">
-        {/* Input Panel */}
+        
         <div className="bg-white rounded-xl shadow-sm p-6 relative">
           
           {isKeySetup && (
             <button 
               onClick={() => {
-                localStorage.removeItem('gemini_api_key');
+                localStorage.removeItem('gemini_api_key0');
                 setIsKeySetup(false);
                 setApiKey('');
               }} 
@@ -190,9 +190,9 @@ const StudyStudio = () => {
           </button>
         </div>
 
-        {/* Output Panel */}
+      
         <div className="space-y-6">
-          {/* Flashcards */}
+          
           {flashcards.length > 0 && (
             <div className="bg-white rounded-xl shadow-sm p-6">
               <h3 className="font-bold mb-4 text-gray-800">Flashcards</h3>
@@ -239,7 +239,7 @@ const StudyStudio = () => {
             </div>
           )}
 
-          {/* Discussion Questions */}
+       
           {discussion.length > 0 && (
             <div className="bg-white rounded-xl shadow-sm p-6">
               <h3 className="font-bold mb-4 text-gray-800">Discussion Questions</h3>

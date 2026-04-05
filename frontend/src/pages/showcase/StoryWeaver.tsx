@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import PublicLayout from '../../components/PublicLayout';
 import toast from 'react-hot-toast';
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import api from '../../services/api';
 
 const StoryWeaver = () => {
   const [segments, setSegments] = useState<{ text: string; author: 'user' | 'ai' }[]>([]);
@@ -9,15 +10,15 @@ const StoryWeaver = () => {
   const [phase, setPhase] = useState<'first_three' | 'waiting_ai' | 'user_two_more'>('first_three');
   const [loading, setLoading] = useState(false);
   
-  // ✅ Manage Gemini API Key locally (Zero backend required, 100% secure)
-  const [apiKey, setApiKey] = useState(localStorage.getItem('gemini_api_key') || '');
-  const [isKeySetup, setIsKeySetup] = useState(!!localStorage.getItem('gemini_api_key'));
+ 
+  const [apiKey, setApiKey] = useState(localStorage.getItem('gemini_api_key1') || '');
+  const [isKeySetup, setIsKeySetup] = useState(!!localStorage.getItem('gemini_api_key1'));
 
   const abortControllerRef = useRef<AbortController | null>(null);
 
   const saveApiKey = (key: string) => {
     if (!key.trim()) return toast.error('Please enter a valid API key');
-    localStorage.setItem('gemini_api_key', key.trim());
+    localStorage.setItem('gemini_api_key1', key.trim());
     setApiKey(key.trim());
     setIsKeySetup(true);
     toast.success('Gemini API Key saved locally!');
@@ -27,18 +28,34 @@ const StoryWeaver = () => {
     setSegments(prev => [...prev, { text, author }]);
   };
 
-  // ✅ Gemini API Integration
-  const callAI = async (storySoFar: string) => {
-    if (!apiKey) {
-      toast.error('Gemini API Key is missing.');
-      return;
-    }
+ 
+  // const callAI = async (storySoFar: string) => {
+  //   if (!apiKey) {
+  //     toast.error('Gemini API Key is missing.');
+  //     return;
+  //   }
+const callAI = async (storySoFar: string) => {
+  setLoading(true);
+  try {
+    // Talk to YOUR backend, not Gemini
+    const res = await api.post('/showcase/story', { storySoFar });
+    addSegment(res.data.text.trim(), 'ai');
+    setPhase('user_two_more');
+    setInput(''); 
+  } catch (err) {
+    toast.error('AI failed to respond. Please write manually.');
+    setPhase('user_two_more');
+  } finally {
+    setLoading(false);
+  }
+};
+
 
     setLoading(true);
     try {
-      // Initialize Gemini
+      
       const genAI = new GoogleGenerativeAI(apiKey);
-      // Gemini 1.5 Flash is lightning fast and free
+    
       const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
       const prompt = `You are a creative co-author. Continue this story with exactly ONE sentence. Do not include any conversational filler, introductory text, or quotes. Just write the next sentence:\n\n${storySoFar}\n\nNext sentence:`;
@@ -77,7 +94,7 @@ const StoryWeaver = () => {
       await callAI(story);
 
     } else if (phase === 'user_two_more') {
-      // Safe sentence counting for Safari compatibility
+     
       const sentences = input.match(/[^.!?]+[.!?]*/g)?.filter(s => s.trim().length > 0) || [];
       
       if (sentences.length < 2) {
@@ -110,7 +127,7 @@ const StoryWeaver = () => {
   return (
     <PublicLayout title="📖 Story Weaver (Powered by Gemini)">
       
-      {/* API Key Setup Banner */}
+    
       {!isKeySetup && (
         <div className="bg-blue-50 border border-blue-200 rounded-xl p-6 mb-6">
           <h3 className="font-bold text-blue-800 mb-2">Connect Google Gemini</h3>
@@ -143,7 +160,7 @@ const StoryWeaver = () => {
             <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wider">Your Story</h2>
             <button 
               onClick={() => {
-                localStorage.removeItem('gemini_api_key');
+                localStorage.removeItem('gemini_api_key1');
                 setIsKeySetup(false);
                 setApiKey('');
               }} 
@@ -153,7 +170,7 @@ const StoryWeaver = () => {
             </button>
           </div>
 
-          {/* Story Log */}
+          
           {segments.length > 0 && (
             <div className="space-y-3 max-h-[500px] overflow-y-auto mb-6 p-4 bg-gray-50 rounded-lg border">
               {segments.map((seg, idx) => (
@@ -173,7 +190,7 @@ const StoryWeaver = () => {
             </div>
           )}
 
-          {/* Input Area */}
+     
           <textarea
             value={input}
             onChange={(e) => setInput(e.target.value)}

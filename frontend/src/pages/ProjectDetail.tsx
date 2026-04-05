@@ -318,7 +318,8 @@ import SearchFilter from '../components/SearchFilter';
 import ActivityFeed from '../components/ActivityFeed';
 import CalendarView from '../components/CalendarView';
 import LoadingSpinner from '../components/LoadingSpinner';
-import { GoogleGenerativeAI } from '@google/generative-ai'; // ✅ Required for AI feature
+import { GoogleGenerativeAI } from '@google/generative-ai'; 
+import AnalyticsView from '../components/AnalyticsView';
 
 const ProjectDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -329,10 +330,10 @@ const ProjectDetail = () => {
   const [inviting, setInviting] = useState(false);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
-  const [activeView, setActiveView] = useState<'kanban' | 'calendar'>('kanban');
+  const [activeView, setActiveView] = useState<'kanban' | 'calendar' | 'analytics'>('kanban');
   const [error, setError] = useState(false);
 
-  // AI Feature State
+
   const [isGeneratingAI, setIsGeneratingAI] = useState(false);
 
   const fetchProject = useCallback(async () => {
@@ -362,15 +363,15 @@ const ProjectDetail = () => {
     fetchTasks();
   }, [fetchProject, fetchTasks]);
 
-  // ✅ FIX 2: Socket Reconnection Logic
+
   useEffect(() => {
     const socket = getSocket();
     if (!socket) return;
 
-    // Join room initially
+    
     socket.emit('join-project', id);
 
-    // Re-join room if socket reconnects after a drop
+    
     const handleReconnect = () => socket.emit('join-project', id);
     socket.on('connect', handleReconnect);
 
@@ -431,52 +432,73 @@ const ProjectDetail = () => {
     }
   };
 
-  // ✅ NEW FEATURE: AI Task Breakdown
-  const generateAITasks = async () => {
-    const apiKey = localStorage.getItem('gemini_api_key');
-    if (!apiKey) {
-      toast.error('Please add a Gemini API Key in the Story Weaver tool first to use AI features.');
-      return;
-    }
-    if (!project?.description) {
-      toast.error('Your project needs a description for the AI to analyze!');
-      return;
-    }
+  
+  // const generateAITasks = async () => {
+  //   const apiKey = localStorage.getItem('gemini_api_key');
+  //   if (!apiKey) {
+  //     toast.error('Please add a Gemini API Key in the Story Weaver tool first to use AI features.');
+  //     return;
+  //   }
+  //   if (!project?.description) {
+  //     toast.error('Your project needs a description for the AI to analyze!');
+  //     return;
+  //   }
 
-    setIsGeneratingAI(true);
-    try {
-      const genAI = new GoogleGenerativeAI(apiKey);
-      const model = genAI.getGenerativeModel({ 
-        model: 'gemini-1.5-flash',
-        generationConfig: { responseMimeType: "application/json" } // Forces strict JSON array
-      });
+  //   setIsGeneratingAI(true);
+  //   try {
+  //     const genAI = new GoogleGenerativeAI(apiKey);
+  //     const model = genAI.getGenerativeModel({ 
+  //       model: 'gemini-1.5-flash',
+  //       generationConfig: { responseMimeType: "application/json" } 
+  //     });
 
-      const prompt = `Analyze this project name: "${project.name}" and description: "${project.description}". 
+  //     const prompt = `Analyze this project name: "${project.name}" and description: "${project.description}". 
+  //     Break it down into 3 to 5 logical, actionable tasks. 
+  //     Return a JSON array of objects. Each object must have a "title" string and a short "description" string.`;
+
+  //     const result = await model.generateContent(prompt);
+  //     const tasksArray = JSON.parse(result.response.text());
+
+  //     if (!Array.isArray(tasksArray)) throw new Error('Invalid AI format');
+
+     
+  //     for (const t of tasksArray) {
+  //       await addTask({ title: t.title, description: t.description, status: 'To Do' });
+  //     }
+  //     toast.success('AI successfully generated tasks!');
+      
+  //   } catch (error) {
+  //     console.error('AI Task Gen Error:', error);
+  //     toast.error('AI failed to generate tasks. Please try again.');
+  //   } finally {
+  //     setIsGeneratingAI(false);
+  //   }
+  // };
+
+ const generateAITasks = async () => {
+  setIsGeneratingAI(true);
+  try {
+    const prompt = `Analyze this project name: "${project.name}" and description: "${project.description}". 
       Break it down into 3 to 5 logical, actionable tasks. 
       Return a JSON array of objects. Each object must have a "title" string and a short "description" string.`;
 
-      const result = await model.generateContent(prompt);
-      const tasksArray = JSON.parse(result.response.text());
+    const res = await api.post('/showcase/generate-json', { prompt });
+    const tasksArray = res.data.data;
 
-      if (!Array.isArray(tasksArray)) throw new Error('Invalid AI format');
-
-      // Add each generated task
-      for (const t of tasksArray) {
-        await addTask({ title: t.title, description: t.description, status: 'To Do' });
-      }
-      toast.success('AI successfully generated tasks!');
-      
-    } catch (error) {
-      console.error('AI Task Gen Error:', error);
-      toast.error('AI failed to generate tasks. Please try again.');
-    } finally {
-      setIsGeneratingAI(false);
+    for (const t of tasksArray) {
+      await addTask({ title: t.title, description: t.description, status: 'To Do' });
     }
-  };
+    toast.success('AI successfully generated tasks!');
+  } catch (error) {
+    toast.error('AI failed to generate tasks. Please try again.');
+  } finally {
+    setIsGeneratingAI(false);
+  }
+};
 
-  // ✅ FIX 1: Optimistic update with targeted functional rollback
+
   const updateTask = async (taskId: string, updates: Partial<Task>) => {
-    // Find the exact task state BEFORE we update it, to use as our rollback payload
+  
     let taskToRevert: Task | undefined;
     
     setTasks((prev) => {
@@ -495,7 +517,7 @@ const ProjectDetail = () => {
     }
   };
 
-  // ✅ FIX 1: Optimistic delete with targeted functional rollback
+ 
   const deleteTask = async (taskId: string) => {
     let taskToRevert: Task | undefined;
 
@@ -554,7 +576,7 @@ const ProjectDetail = () => {
         <p className="text-gray-500 mb-6">{project.description}</p>
       )}
 
-      {/* Collaborators & Invite */}
+   
       <div className="bg-white rounded-xl shadow-sm p-4 mb-6">
         <h3 className="font-semibold mb-2 text-gray-800">Collaborators</h3>
         <div className="flex flex-wrap gap-2 mb-3">
@@ -586,7 +608,7 @@ const ProjectDetail = () => {
         </div>
       </div>
 
-      {/* Add Task & AI Generator */}
+ 
       <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-semibold text-gray-800">Add New Task</h2>
@@ -608,7 +630,7 @@ const ProjectDetail = () => {
             const description = (form.elements.namedItem('description') as HTMLTextAreaElement).value.trim();
             if (!title) return;
             
-            // ✅ Fix: Only submit once
+     
             const submitBtn = form.querySelector('button[type="submit"]') as HTMLButtonElement;
             submitBtn.disabled = true;
             
@@ -661,12 +683,23 @@ const ProjectDetail = () => {
         >
           Calendar
         </button>
+<button
+  onClick={() => setActiveView('analytics')}
+  className={`px-5 py-2 text-sm font-medium border-b-2 transition ${
+    activeView === 'analytics'
+      ? 'border-gray-800 text-gray-800'
+      : 'border-transparent text-gray-500 hover:text-gray-700'
+  }`}
+>
+  Analytics
+</button>
+
       </div>
 
       {activeView === 'kanban' ? (
         <>
           <SearchFilter onSearch={setSearch} onFilterStatus={setStatusFilter} />
-          {/* ✅ FIX 3: Restored missing props so Delete buttons & Attachments work properly */}
+ 
           <KanbanBoard
             tasks={filteredTasks}
             onUpdate={updateTask}
@@ -683,7 +716,18 @@ const ProjectDetail = () => {
           onTaskAdd={addTask}
         />
       )}
-
+{activeView === 'kanban' && (
+  <>
+    <SearchFilter onSearch={setSearch} onFilterStatus={setStatusFilter} />
+    <KanbanBoard tasks={filteredTasks} onUpdate={updateTask} onDelete={deleteTask} onRefresh={fetchTasks} projectOwnerId={project?.owner._id} />
+  </>
+)}
+{activeView === 'calendar' && (
+  <CalendarView tasks={tasks} projectId={id!} onTaskUpdate={updateTask} onTaskAdd={addTask} />
+)}
+{activeView === 'analytics' && (
+  <AnalyticsView projectId={id!} />
+)}
       <ActivityFeed projectId={id!} />
     </div>
   );

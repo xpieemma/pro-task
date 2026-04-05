@@ -8,7 +8,7 @@ const PoemWeaver = () => {
   const [waitingForAI, setWaitingForAI] = useState(false);
   const [hint, setHint] = useState('');
   
-  // ✅ Manage Groq API Key locally
+
   const [apiKey, setApiKey] = useState(localStorage.getItem('groq_api_key') || '');
   const [isKeySetup, setIsKeySetup] = useState(!!localStorage.getItem('groq_api_key'));
 
@@ -28,7 +28,7 @@ const PoemWeaver = () => {
     setPoemLines(prev => [...prev, { text, author }]);
   };
 
-  // ✅ Groq API Integration (Blazing Fast LPU)
+  // Groq API Integration (Blazing Fast LPU)
   const askAI = async (context: string) => {
     if (!apiKey) return toast.error('Groq API Key is missing.');
 
@@ -87,7 +87,7 @@ const PoemWeaver = () => {
     await askAI(context);
   };
 
-  // ✅ Groq API Integration for Hints
+  // Groq API Integration for Hints
   const getHint = async () => {
     if (!apiKey) return toast.error('Groq API Key is missing.');
     if (poemLines.length === 0) {

@@ -187,7 +187,7 @@ const TaskCard = ({ task, onUpdate, onDelete, onRefresh, projectOwnerId }: Props
           </div>
         </div>
         
-        {/* Status Badge */}
+
         <span className={`px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider shrink-0 ${statusColors[task.status]}`}>
           {task.status}
         </span>

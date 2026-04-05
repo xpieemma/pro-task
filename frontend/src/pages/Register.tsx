@@ -122,7 +122,7 @@ const Register = () => {
     e.preventDefault();
     setSubmitting(true);
     try {
-      // ✅ FIX 1 & 2: Context handles the navigation and the error toasts natively
+
       await register(name, email, password);
     } catch (err) {
       console.error('Registration error:', err);
@@ -190,7 +190,7 @@ const Register = () => {
           </Link>
         </p>
 
-        {/* ✅ FIX 3: Moved inside the white card boundary */}
+
         <div className="mt-6 border-t border-gray-100 pt-6">
           <button 
             type="button"

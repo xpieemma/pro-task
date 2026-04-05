@@ -130,7 +130,7 @@ const Login = () => {
   const handleGuest = async () => {
     setGuestSubmitting(true);
     try {
-      // ✅ FIX 1 & 2: Context handles the navigation and error toasts
+
       await loginAsGuest();
     } catch (err) {
       console.error('Guest login error:', err);
@@ -143,7 +143,7 @@ const Login = () => {
     e.preventDefault();
     setSubmitting(true);
     try {
-      // ✅ FIX 1 & 2: Context handles the navigation and error toasts
+
       await login(email, password);
     } catch (err) {
       console.error('Login error:', err);
@@ -179,7 +179,7 @@ const Login = () => {
               className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-400"
               required
             />
-            {/* ✅ FIX 3: Moved Forgot Password closer to the password field */}
+         
             <div className="text-right mt-1.5">
               <Link to="/forgot-password" className="text-sm text-gray-500 hover:underline">
                 Forgot password?
@@ -223,8 +223,6 @@ const Login = () => {
             Register
           </Link>
         </p>
-        
-        {/* API Showcase link clearly separated at the bottom */}
         <div className="mt-4 pt-4 border-t border-gray-100 text-center">
           <Link to="/showcase" className="text-blue-600 font-medium text-sm hover:underline">
             ✨ Explore API Showcase (no login required)

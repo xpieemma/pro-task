@@ -5,14 +5,6 @@ import PublicLayout from '../../components/PublicLayout';
 
 const CLIENT_ID_STORAGE = 'spotify_client_id';
 
-// type SpotifyTrack = {
-//   id: string;
-//   name: string;
-//   album : {
-//     images: { url: string }[];
-//   };
-//   artists: { name: string }[];
-// };
 type TimeRange = 'short_term' | 'medium_term' | 'long_term'
 
 
@@ -50,10 +42,6 @@ const fetchAllData = async (token: string) => {
     }
   }, []);
 
-  // const saveClientId = () => {
-  //   localStorage.setItem(CLIENT_ID_STORAGE, clientId);
-  //   toast.success('Client ID saved');
-  // };
 
   const login = () => {
     if (!clientId) return alert('Set your Spotify Client ID first');
@@ -68,8 +56,7 @@ const fetchAllData = async (token: string) => {
   const fetchProfile = async (token: string) => {
  
     const res = await fetch('https://api.spotify.com/v1/me', { headers: { Authorization: `Bearer ${token}` } });
-    // const data = await res.json();
-    // setProfile(data);
+  
     if (!res.ok) {
       toast.error("Failed to load Spotify data");
       return;
@@ -84,7 +71,7 @@ const fetchAllData = async (token: string) => {
       toast.error("Failed to load top tracks");
       return;
     }
-    // const tracks = await tracksRes.json();
+    
     const tracks: SpotifyApi.UsersTopTracksResponse = await tracksRes.json();
     setTopTracks(tracks.items);
 
@@ -95,7 +82,7 @@ const fetchAllData = async (token: string) => {
       return;
     }
 
-    // const artists = await artistsRes.json();
+
     const artists: SpotifyApi.UsersTopArtistsResponse = await artistsRes.json();
     setTopArtists(artists.items);
   };
@@ -116,7 +103,7 @@ const fetchAllData = async (token: string) => {
   <PublicLayout title="🎧 Spotify Vibe Checker">
     <div className="bg-white rounded-xl shadow-sm p-6">
 
-      {/* Client ID input (initial or editing) */}
+    
       {(!clientId || editingClientId) && (
         <div className="mb-4">
           <input
@@ -139,7 +126,7 @@ const fetchAllData = async (token: string) => {
         </div>
       )}
 
-      {/* Edit button (only when saved and not editing) */}
+
       {clientId && !editingClientId && (
         <button
           onClick={() => setEditingClientId(true)}
@@ -149,7 +136,7 @@ const fetchAllData = async (token: string) => {
         </button>
       )}
 
-      {/* Login button */}
+
       {clientId && !accessToken && (
         <button
           onClick={login}
@@ -189,7 +176,7 @@ const fetchAllData = async (token: string) => {
       : "🎧 Casual listener"}
   </p>
 </div>
-{/* Time Range Toggle */}
+
 <div className="flex gap-2 mb-4">
   {(['short_term', 'medium_term', 'long_term'] as const).map(r => (
     <button

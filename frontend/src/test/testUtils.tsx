@@ -81,7 +81,7 @@ export const renderWithRouter = (ui: React.ReactElement, { route = '/' } = {}) =
   );
 };
 
-// ─── Fake data factories ───────────────────────────────────────────────────────
+
 
 export const makeProject = (overrides = {}) => ({
   _id: 'project-1',

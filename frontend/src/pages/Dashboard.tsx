@@ -19,16 +19,6 @@ const Dashboard = () => {
   const fetchProjects = useCallback(async () => {
     try {
       const { data } = await api.get('/projects');
-      // setProjects(prev => {
-      // const map = new Map<string, Project>();
-
-      // // Add existing projects
-      // prev.forEach((p: Project) => map.set(p._id, p));
-
-      // // Add fetched projects
-      // data.forEach((p: Project) => map.set(p._id, p));
-
-      // return Array.from(map.values());
       setProjects(data);
     } catch {
       toast.error('Failed to load projects');
@@ -41,13 +31,13 @@ const Dashboard = () => {
     fetchProjects();
   }, []);
 
-  // Socket listeners in a separate effect so fetchProjects is stable
+
   useEffect(() => {
     const socket = getSocket();
     if (!socket) return;
 
     const handleProjectCreated = (project: Project) => {
-      // Only add if we don't already have it (avoid duplicate from optimistic update)
+      
       setProjects((prev) =>
         prev.some((p) => p._id === project._id) ? prev : [project, ...prev]
       );
@@ -55,7 +45,7 @@ const Dashboard = () => {
     const handleProjectUpdated = (updated: Project) => {
       setProjects((prev) => prev.map((p) => (p._id === updated._id ? updated : p)));
     };
-    // Socket handles removal — no local delete needed alongside it
+   
     const handleProjectDeleted = ({ id }: { id: string }) => {
       setProjects((prev) => prev.filter((p) => p._id !== id));
       toast.success('Project deleted');
@@ -77,7 +67,7 @@ const Dashboard = () => {
     if (!name.trim()) return;
     setCreating(true);
     try {
-      // Server emits 'project-created' via socket, which adds it to state
+   
       await api.post('/projects', { name: name.trim(), description });
       setName('');
       setDescription('');
@@ -92,7 +82,7 @@ const Dashboard = () => {
     if (!confirm('Delete this project and all its tasks?')) return;
     try {
       await api.delete(`/projects/${id}`);
-      // Server emits 'project-deleted' via socket, which removes it from state
+   
     } catch {
       toast.error('Failed to delete project');
     }

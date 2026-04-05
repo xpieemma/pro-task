@@ -8,8 +8,8 @@
   <p><strong>Real‑time collaborative project management for modern teams</strong></p>
   <p>
     <a href="LIVE_DEPLOYMENT_URL"><img src="https://img.shields.io/badge/Live_Demo-View_Project-brightgreen?style=for-the-badge" alt="Live Demo" /></a>
-    <a href="GITHUB_PROFILE_URL"><img src="https://img.shields.io/badge/GitHub-View_Code-181717?style=for-the-badge&logo=github" alt="GitHub" /></a>
-    <a href="LINKEDIN_PROFILE_URL"><img src="https://img.shields.io/badge/LinkedIn-Connect-0A66C2?style=for-the-badge&logo=linkedin" alt="LinkedIn" /></a>
+    <a href="https://github.com/xpieemma"><img src="https://img.shields.io/badge/GitHub-View_Code-181717?style=for-the-badge&logo=github" alt="GitHub" /></a>
+    <a href="https://www.linkedin.com/in/epierr14"><img src="https://img.shields.io/badge/LinkedIn-Connect-0A66C2?style=for-the-badge&logo=linkedin" alt="LinkedIn" /></a>
   </p>
   <p>
     <img src="https://img.shields.io/badge/MERN-Stack-green" alt="MERN Stack" />
@@ -44,12 +44,12 @@ Pro‑Tasker includes a separate `/showcase` section with 8 creative tools that 
 
 | Tool | API | Description |
 |------|-----|-------------|
-| Poem Weaver | Pollinations.ai | Collaborative poem writing – user + AI take turns |
-| Story Weaver | Pollinations.ai | You write first 3 lines → AI adds 1 sentence → you write ≥2 more |
+| Poem Weaver | GROQ | Collaborative poem writing – user + AI take turns |
+| Story Weaver | GEMINI | You write first 3 lines → AI adds 1 sentence → you write ≥2 more |
 | Weather Mood | Open‑Meteo | Live weather with mood messages & dynamic backgrounds |
-| Infinite Inspiration | Unsplash | Search and browse high‑resolution images (free API key required) |
+| Infinite Inspiration | PEXELS | Search and browse high‑resolution images (free API key required) |
 | Currency Explorer | ExchangeRate‑API | Real‑time rates, live converter, mood‑based spending insights |
-| Developer Study Studio | Pollinations.ai | Paste notes → AI generates flashcards & discussion questions |
+| Developer Study Studio | GEMINI | Paste notes → AI generates flashcards & discussion questions |
 | Spotify Vibe | Spotify Web API | OAuth 2.0 – view your top tracks & artists of the month |
 | Resume | GitHub API | Fetch and display your public repositories dynamically |
 
@@ -61,8 +61,8 @@ Pro‑Tasker includes a separate `/showcase` section with 8 creative tools that 
 |-------|--------------|
 | **Backend** | Node.js, Express, TypeScript, MongoDB, Mongoose, Socket.IO, JWT, bcryptjs, Cloudinary, Multer |
 | **Frontend** | React 18, Vite, TypeScript, Tailwind CSS, React Router v6, Axios, Socket.IO‑client, @dnd‑kit, react‑big‑calendar, date‑fns, react‑hot‑toast |
-| **Showcase APIs** | Pollinations.ai, Open‑Meteo, Unsplash, ExchangeRate‑API, Spotify Web API, GitHub API |
-| **Deployment** | Render (Web Service + Static Site), Netlify, Vercel |
+| **Showcase APIs** | GEMINI, Open‑Meteo, PEXELS, ExchangeRate‑API, Spotify Web API, GitHub API, GROQ API |
+| **Deployment** | Render (Web Service + Static Site), Vercel |
 
 ---
 
@@ -75,7 +75,7 @@ Pro‑Tasker includes a separate `/showcase` section with 8 creative tools that 
 
 ### 1. Clone the repository
 ```bash
-git clone [https://github.com/yourusername/pro-tasker.git](https://github.com/yourusername/pro-tasker.git)
+git clone [https://github.com/xpieemma/pro-task.git](https://github.com/xpieemma/pro-task.git)
 cd pro-tasker
 ```
 
@@ -266,11 +266,11 @@ requiredEnvVars.forEach((envVar) => {
 
 ## 🙏 Acknowledgements
 
-Pollinations.ai – free AI text & image generation
+GEMINI – free AI text & image generation
 
 Open‑Meteo – free weather API
 
-Unsplash – beautiful high‑resolution photos
+PEXELS – beautiful high‑resolution photos
 
 ExchangeRate‑API – free real‑time exchange rates
 
@@ -280,8 +280,4 @@ GitHub REST API – repository data
 
 <div align="center"> <sub>Built with ❤️ as a full‑stack capstone project</sub> </div>
 
-```
-```
-
-```
 ```

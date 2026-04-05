@@ -64,7 +64,7 @@ const timeoutId = setTimeout(() => {
           if (!timeoutTriggered) {
         clearTimeout(timeoutId);
         const { latitude, longitude } = pos.coords;
-        // Use coordinates directly (skip broken reverse geocoding)
+        
         const city = `${latitude.toFixed(2)}, ${longitude.toFixed(2)}`;
         setLocationName(city);
         try {
@@ -78,7 +78,7 @@ const timeoutId = setTimeout(() => {
       }
       },
       () => {
-        // Geolocation error (user denied or timeout)
+  
         if (!timeoutTriggered) {
         clearTimeout(timeoutId);
         setLocationName('Newark, NJ');

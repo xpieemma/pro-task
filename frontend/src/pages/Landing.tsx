@@ -232,7 +232,7 @@ const Landing = () => {
   const handleDemoLogin = async () => {
     setIsLaunching(true);
     try {
-      // ✅ FIX 1 & 2: Context natively handles the redirect to /dashboard and any error toasts
+
       await loginAsDemo();
     } catch (err) {
       console.error('Demo login error:', err);
@@ -244,7 +244,7 @@ const Landing = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 flex flex-col font-sans">
       
-      {/* Hero Section */}
+
       <div className="max-w-5xl mx-auto px-4 pt-24 pb-16 text-center flex-grow flex flex-col justify-center">
         <h1 className="text-5xl md:text-6xl font-extrabold text-slate-900 tracking-tight mb-6">
           Pro-Tasker
@@ -253,7 +253,7 @@ const Landing = () => {
           Real-time project management with Kanban, intelligent calendars, and live collaboration.
         </p>
         
-        {/* Primary Call to Actions */}
+      
         <div className="flex flex-wrap justify-center gap-4 mb-12">
           <Link
             to="/login"
@@ -282,7 +282,7 @@ const Landing = () => {
           </button>
         </div>
 
-        {/* Secondary Action (Showcase) */}
+ 
         <div className="flex justify-center">
            <Link 
              to="/showcase"
@@ -293,7 +293,7 @@ const Landing = () => {
         </div>
       </div>
 
-      {/* Features Section */}
+ 
       <div className="bg-white border-t border-slate-200">
         <div className="max-w-6xl mx-auto px-4 py-16 grid md:grid-cols-3 gap-8">
           {FEATURES.map((feature, idx) => ( 

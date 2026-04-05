@@ -4,6 +4,7 @@ import { AuthRequest } from '../middleware/auth.js';
 import { Task } from '../models/Task.js';
 import { Project } from '../models/Project.js';
 import { Activity } from '../models/Activity.js';
+import mongoose from 'mongoose';
 
 const canAccessProject = async (projectId: string, userId: string): Promise<boolean> => {
   const project = await Project.findById(projectId);
@@ -17,18 +18,18 @@ const canAccessProject = async (projectId: string, userId: string): Promise<bool
 export const getTasks = asyncHandler(async (req: AuthRequest, res: Response) => {
   const { projectId } = req.params;
   if (!(await canAccessProject(projectId, req.user!._id.toString()))) {
-    res.status(403).json({ message: 'Not authorized' });
-    return;
+    res.status(403);
+    throw new Error ( 'Not authorized' );
   }
-  const tasks = await Task.find({ project: projectId });
+  const tasks = await Task.find({ project: projectId }).sort({ createdAt: -1 });
   res.json(tasks);
 });
 
 export const createTask = asyncHandler(async (req: AuthRequest, res: Response) => {
   const { projectId } = req.params;
   if (!(await canAccessProject(projectId, req.user!._id.toString()))) {
-    res.status(403).json({ message: 'Not authorized' });
-    return;
+    res.status(403);
+    throw new Error('Not authorized');
   }
   const { title, description, status, dueDate } = req.body;
 
@@ -151,4 +152,115 @@ export const getActivity = asyncHandler(async (req: AuthRequest, res: Response) 
     .sort({ createdAt: -1 })
     .limit(50);
   res.json(activities);
+});
+
+export const addAttachment = asyncHandler(async (req: AuthRequest, res: Response) => {
+  const { taskId } = req.params;
+  const task = await Task.findById(taskId);
+  
+  if (!task || !(await canAccessProject(task.project.toString(), req.user!._id.toString()))) {
+    res.status(404).json({ message: 'Task not found or unauthorized' });
+    return;
+  }
+  
+  if (!req.file) {
+    res.status(400).json({ message: 'No file uploaded' });
+    return;
+  }
+
+  const newAttachment = {
+    name: req.file.originalname,
+    url: req.file.path,
+    public_id: req.file.filename,
+    size: req.file.size,
+    mimeType: req.file.mimetype,
+  };
+
+  task.attachments?.push(newAttachment);
+  await task.save();
+
+ 
+  const io = req.app.get('io');
+  io.to(`project:${task.project}`).emit('task-updated', task);
+  
+  res.status(201).json(task);
+});
+
+export const deleteAttachment = asyncHandler(async (req: AuthRequest, res: Response) => {
+  const { taskId, attachmentId } = req.params;
+  const task = await Task.findById(taskId);
+  
+  if (!task || !(await canAccessProject(task.project.toString(), req.user!._id.toString()))) {
+    res.status(404).json({ message: 'Task not found or unauthorized' });
+    return;
+  }
+
+  task.attachments = task.attachments?.filter((att: any) => att._id.toString() !== attachmentId);
+  await task.save();
+
+  const io = req.app.get('io');
+  io.to(`project:${task.project}`).emit('task-updated', task);
+  
+  res.json(task);
+});
+
+
+export const getProjectAnalytics = asyncHandler(async (req: any, res: Response) => {
+  const { projectId } = req.params;
+  
+  if (!(await canAccessProject(projectId, req.user._id.toString()))) {
+    res.status(403);
+    throw new Error('Not authorized');
+  }
+
+  const projectIdObj = new mongoose.Types.ObjectId(projectId);
+  const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+
+  // The Recruiter Flex: A multi-faceted aggregation pipeline
+  const analytics = await Task.aggregate([
+    { $match: { project: projectIdObj } },
+    {
+      $facet: {
+        // 1. Group by Status
+        taskStatus: [
+          { $group: { _id: '$status', count: { $sum: 1 } } }
+        ],
+        // 2. Calculate Overdue Tasks
+        overdueTasks: [
+          { $match: { dueDate: { $lt: new Date() }, status: { $ne: 'Done' } } },
+          { $count: 'total' }
+        ],
+        // 3. Velocity: Tasks completed per day over the last 7 days
+        completionVelocity: [
+          { $match: { status: 'Done', updatedAt: { $gte: sevenDaysAgo } } },
+          { 
+            $group: { 
+              _id: { $dateToString: { format: '%m/%d', date: '$updatedAt' } }, 
+              completed: { $sum: 1 } 
+            } 
+          },
+          { $sort: { _id: 1 } }
+        ]
+      }
+    }
+  ]);
+
+  // Format the raw MongoDB data for the frontend charts
+  const rawData = analytics[0];
+  
+  const statusData = [
+    { name: 'To Do', value: rawData.taskStatus.find((s: any) => s._id === 'To Do')?.count || 0 },
+    { name: 'In Progress', value: rawData.taskStatus.find((s: any) => s._id === 'In Progress')?.count || 0 },
+    { name: 'Done', value: rawData.taskStatus.find((s: any) => s._id === 'Done')?.count || 0 },
+  ];
+
+  const totalTasks = statusData.reduce((acc, curr) => acc + curr.value, 0);
+  const overdueCount = rawData.overdueTasks[0]?.total || 0;
+
+  res.json({
+    totalTasks,
+    overdueCount,
+    statusData,
+    velocityData: rawData.completionVelocity.map((v: any) => ({ date: v._id, completed: v.completed }))
+  });
 });

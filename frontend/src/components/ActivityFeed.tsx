@@ -20,7 +20,6 @@ const ActivityFeed = ({ projectId }: Props) => {
       setError(null);
     } catch (err) {
       setError("Failed to load activity feed");
-      // silently fail — feed is non-critical
     } finally {
       setLoading(false);
     }
