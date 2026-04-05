@@ -40,7 +40,7 @@
 //     setLoading(true);
 //     try {
 //       const url = searchQuery
-//         ? `https://api.unsplash.com/search/photos?query=${encodeURIComponent(searchQuery)}&per_page=12`
+//         /* ? `https://api.unsplash.com/search/photos?query=${encodeURIComponent(searchQuery)}&per_page=12`
 //         : `https://api.unsplash.com/photos?per_page=12`;
 
 //       // Securely pass API key in Headers, not in the URL string
@@ -221,6 +221,38 @@ const GalleryPage = () => {
   //     setShowKeyInput(true);
   //     return;
   //   }
+  //   setLoading(true);
+  //   try {
+  //     // Pexels uses /search for queries, and /curated for default front-page photos
+  //     const url = searchQuery
+  //  /*     ? `https://api.pexels.com/v1/search?query=${encodeURIComponent(searchQuery)}&per_page=12`
+  //       : `https://api.pexels.com/v1/curated?per_page=12`; */
+
+  //     // Pexels expects just the raw API key in the Authorization header
+  //     const res = await fetch(url, {
+  //       headers: {
+  //         Authorization: currentKey
+  //       }
+  //     });
+
+  //     const data = await res.json();
+
+  //     // Catch HTTP errors (401 Unauthorized, 403 Forbidden)
+  //     if (!res.ok) {
+  //       throw new Error(data.error || `HTTP Error ${res.status}`);
+  //     }
+
+  //     // Pexels returns arrays inside a 'photos' object for both curated and search endpoints
+  //     setPhotos(data.photos || []);
+
+  //   } catch (err: any) {
+  //     console.error(err);
+  //     toast.error(err.message || 'Failed to load images');
+  //     setPhotos([]); // Fallback to empty array to prevent map() crashes
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // }, []);
 
   const fetchPhotos = useCallback(async (searchQuery: string) => {
   setLoading(true);
@@ -236,38 +268,7 @@ const GalleryPage = () => {
   }
 }, []);
 
-    setLoading(true);
-    try {
-      // Pexels uses /search for queries, and /curated for default front-page photos
-      const url = searchQuery
-        ? `https://api.pexels.com/v1/search?query=${encodeURIComponent(searchQuery)}&per_page=12`
-        : `https://api.pexels.com/v1/curated?per_page=12`;
-
-      // Pexels expects just the raw API key in the Authorization header
-      const res = await fetch(url, {
-        headers: {
-          Authorization: currentKey
-        }
-      });
-
-      const data = await res.json();
-
-      // Catch HTTP errors (401 Unauthorized, 403 Forbidden)
-      if (!res.ok) {
-        throw new Error(data.error || `HTTP Error ${res.status}`);
-      }
-
-      // Pexels returns arrays inside a 'photos' object for both curated and search endpoints
-      setPhotos(data.photos || []);
-
-    } catch (err: any) {
-      console.error(err);
-      toast.error(err.message || 'Failed to load images');
-      setPhotos([]); // Fallback to empty array to prevent map() crashes
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  
 
   // Fetch default photos on mount if key exists
   useEffect(() => {

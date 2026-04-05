@@ -34,6 +34,32 @@ const StoryWeaver = () => {
   //     toast.error('Gemini API Key is missing.');
   //     return;
   //   }
+  //   setLoading(true);
+  //   try {
+      
+  //     const genAI = new GoogleGenerativeAI(apiKey);
+    
+  //     const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+
+  //     const prompt = `You are a creative co-author. Continue this story with exactly ONE sentence. Do not include any conversational filler, introductory text, or quotes. Just write the next sentence:\n\n${storySoFar}\n\nNext sentence:`;
+      
+  //     const result = await model.generateContent(prompt);
+  //     const sentence = result.response.text();
+      
+  //     addSegment(sentence.trim(), 'ai');
+  //     setPhase('user_two_more');
+  //     setInput(''); 
+      
+  //   } catch (err: any) {
+  //     console.error('Gemini Error:', err);
+  //     toast.error('AI failed to respond. Check your API key or write manually.');
+  //     setPhase('user_two_more');
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
+
 const callAI = async (storySoFar: string) => {
   setLoading(true);
   try {
@@ -51,30 +77,6 @@ const callAI = async (storySoFar: string) => {
 };
 
 
-    setLoading(true);
-    try {
-      
-      const genAI = new GoogleGenerativeAI(apiKey);
-    
-      const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
-
-      const prompt = `You are a creative co-author. Continue this story with exactly ONE sentence. Do not include any conversational filler, introductory text, or quotes. Just write the next sentence:\n\n${storySoFar}\n\nNext sentence:`;
-      
-      const result = await model.generateContent(prompt);
-      const sentence = result.response.text();
-      
-      addSegment(sentence.trim(), 'ai');
-      setPhase('user_two_more');
-      setInput(''); 
-      
-    } catch (err: any) {
-      console.error('Gemini Error:', err);
-      toast.error('AI failed to respond. Check your API key or write manually.');
-      setPhase('user_two_more');
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleSubmit = async () => {
     if (!input.trim()) return;
