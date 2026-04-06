@@ -69,11 +69,13 @@ Pro‑Tasker includes a separate `/showcase` section with 8 creative tools that 
 ## 🚀 Quick Start
 
 ### Prerequisites
+
 - Node.js 18+ and npm
 - MongoDB Atlas account
 - Cloudinary account (for file uploads)
 
 ### 1. Clone the repository
+
 ```bash
 git clone [https://github.com/xpieemma/pro-task.git](https://github.com/xpieemma/pro-task.git)
 cd pro-tasker
