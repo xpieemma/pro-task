@@ -17,6 +17,14 @@
     "noFallthroughCasesInSwitch": true,
     "types": ["vitest/globals", "@testing-library/jest-dom", "@types/react", "@types/spotify-api"]
   },
+  "exclude": [
+    "node_modules",
+    "dist",
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "src/test/setup.ts" 
+  ]
+  ,
   "include": ["src"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }
