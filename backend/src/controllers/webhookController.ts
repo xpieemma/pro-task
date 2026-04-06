@@ -18,6 +18,7 @@ export const handleGithubPush = async (req: Request, res: Response): Promise<voi
     // Scan every commit message for the closing pattern
     for (const commit of commits) {
       const message = commit.message as string;
+      console.log(`\n🔎 Evaluating commit: "${message}"`);
       
       // Regex matches: "Fixes #<taskId>", "closes #<taskId>", "resolved #<taskId>"
       // It captures the alphanumeric MongoDB ID after the '#'
@@ -26,10 +27,25 @@ export const handleGithubPush = async (req: Request, res: Response): Promise<voi
 
       while ((match = regex.exec(message)) !== null) {
         const taskId = match[1];
+        console.log(`🎯 Regex Match Found! ID: ${taskId}`);
 
         // Validate that the ID matches MongoDB's 24-character hex format
         if (taskId.length === 24) {
           const task = await Task.findById(taskId);
+
+          if (!task) {
+            console.log(`❌ FAILED: Task not found in database.`); // Debug 4
+          } else if (task.status === 'Done') {
+            console.log(`⚠️ SKIPPED: Task is already marked as 'Done'.`); // Debug 5
+          } else {
+            console.log(`✅ SUCCESS: Task found. Updating status to 'Done'.`); // Debug 6
+            task.status = 'Done';
+            await task.save();
+
+            io.to(`project:${task.project}`).emit('task-updated', task);
+            processedTasks.push(taskId);
+          }
+        
           
           if (task && task.status !== 'Done') {
             task.status = 'Done';
@@ -40,6 +56,8 @@ export const handleGithubPush = async (req: Request, res: Response): Promise<voi
             processedTasks.push(taskId);
             console.log(`✅ Webhook auto-completed task: ${taskId}`);
           }
+        } else {
+          console.log(`⚠️ SKIPPED: ID length is ${taskId.length}, expected 24.`);
         }
       }
     }
