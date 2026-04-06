@@ -118,7 +118,7 @@ import api from "../services/api";
 import toast from "react-hot-toast";
 import { FaGithub } from "react-icons/fa";
 
-const GITHUB_CLIENT_ID = import.meta.env.VITE_GITHUB_CLIENT_ID;
+const GITHUB_CLIENT_ID = process.env.VITE_GITHUB_CLIENT_ID;
 
 const Login = () => {
   const [email, setEmail] = useState("");

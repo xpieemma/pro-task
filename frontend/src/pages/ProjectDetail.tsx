@@ -12,7 +12,6 @@ import SearchFilter from '../components/SearchFilter';
 import ActivityFeed from '../components/ActivityFeed';
 import CalendarView from '../components/CalendarView';
 import LoadingSpinner from '../components/LoadingSpinner';
-import { GoogleGenerativeAI } from '@google/generative-ai'; 
 import AnalyticsView from '../components/AnalyticsView';
 
 const ProjectDetail = () => {
@@ -126,7 +125,7 @@ const ProjectDetail = () => {
           return listWithoutTemp; // Yes! Just return the clean list.
         }
 
-     return prev.map((t) => (t._id === tempId ? data : t));
+ return prev.map((t) => (t._id === tempId ? data : t));
       });
     } catch {
       setTasks((prev) => prev.filter((t) => t._id !== tempId));

@@ -9,7 +9,6 @@ import {
   ResponsiveContainer,
   PieChart,
   Pie,
-  Cell,
 } from "recharts";
 import api from "../services/api";
 import LoadingSpinner from "./LoadingSpinner";

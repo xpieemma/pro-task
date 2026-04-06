@@ -17,7 +17,7 @@ beforeEach(() => {
 
 describe('KanbanBoard — rendering', () => {
   it('renders all three column headers', () => {
-    renderWithRouter(<KanbanBoard tasks={[]} onUpdate={onUpdate} />);
+    renderWithRouter(<KanbanBoard tasks={[]} onUpdate={onUpdate} onDelete={() => {}} />);
 
     expect(screen.getByText('To Do')).toBeInTheDocument();
     expect(screen.getByText('In Progress')).toBeInTheDocument();
@@ -30,7 +30,7 @@ describe('KanbanBoard — rendering', () => {
       makeTask({ _id: 't2', title: 'WIP task', status: 'In Progress' }),
       makeTask({ _id: 't3', title: 'Done task', status: 'Done' }),
     ];
-    renderWithRouter(<KanbanBoard tasks={tasks} onUpdate={onUpdate} />);
+    renderWithRouter(<KanbanBoard tasks={tasks} onUpdate={onUpdate} onDelete={() => {}} />);
 
     expect(screen.getByText('Todo task')).toBeInTheDocument();
     expect(screen.getByText('WIP task')).toBeInTheDocument();
@@ -43,7 +43,7 @@ describe('KanbanBoard — rendering', () => {
       makeTask({ _id: 't2', title: 'Task B', status: 'To Do' }),
       makeTask({ _id: 't3', title: 'Task C', status: 'To Do' }),
     ];
-    renderWithRouter(<KanbanBoard tasks={tasks} onUpdate={onUpdate} />);
+    renderWithRouter(<KanbanBoard tasks={tasks} onUpdate={onUpdate} onDelete={() => {}} />);
 
     expect(screen.getByText('Task A')).toBeInTheDocument();
     expect(screen.getByText('Task B')).toBeInTheDocument();
@@ -51,7 +51,7 @@ describe('KanbanBoard — rendering', () => {
   });
 
   it('renders an empty board without crashing', () => {
-    renderWithRouter(<KanbanBoard tasks={[]} onUpdate={onUpdate} />);
+    renderWithRouter(<KanbanBoard tasks={[]} onUpdate={onUpdate} onDelete={() => {}} />);
     expect(screen.getAllByRole('heading', { level: 3 })).toHaveLength(3);
   });
 
@@ -59,13 +59,13 @@ describe('KanbanBoard — rendering', () => {
     const tasks = [
       makeTask({ _id: 't1', title: 'Has deadline', dueDate: '2026-06-15T00:00:00.000Z' }),
     ];
-    renderWithRouter(<KanbanBoard tasks={tasks} onUpdate={onUpdate} />);
+    renderWithRouter(<KanbanBoard tasks={tasks} onUpdate={onUpdate} onDelete={() => {}} />);
     expect(screen.getByText(/due:/i)).toBeInTheDocument();
   });
 
   it('does not show due date text when dueDate is null', () => {
     const tasks = [makeTask({ _id: 't1', title: 'No date', dueDate: null })];
-    renderWithRouter(<KanbanBoard tasks={tasks} onUpdate={onUpdate} />);
+    renderWithRouter(<KanbanBoard tasks={tasks} onUpdate={onUpdate} onDelete={() => {}} />);
     expect(screen.queryByText(/due:/i)).not.toBeInTheDocument();
   });
 });
