@@ -16,7 +16,7 @@ const storage = new CloudinaryStorage({
   params: async (req, file) => {
     return {
       folder: 'protasker_attachments',
-      resource_type: 'pdf', // Crucial: Allows PDFs, Word docs, and Images
+      resource_type: 'raw', // Crucial: Allows PDFs, Word docs, and Images
       public_id: `${Date.now()}-${file.originalname.replace(/[^a-zA-Z0-9]/g, '_')}`
     };
   },

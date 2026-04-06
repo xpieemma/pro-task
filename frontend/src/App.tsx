@@ -15,6 +15,7 @@ import CurrencyExplorer from "./pages/showcase/CurrencyExplorer";
 import StudyStudio from "./pages/showcase/StudyStudio";
 import SpotifyVibe from "./pages/showcase/SpotifyVibe";
 import ResumePage from "./pages/showcase/ResumePage";
+import MoodboardGenerator from "./pages/showcase/MoodboardGenerator";
 
 function App() {
   return (
@@ -34,6 +35,7 @@ function App() {
             <Route path="study" element={<StudyStudio />} />
             <Route path="spotify" element={<SpotifyVibe />} />
             <Route path="resume" element={<ResumePage />} />
+            <Route path="moodboard" element={<MoodboardGenerator />} />
           </Route>
           <Route
             path="/dashboard"

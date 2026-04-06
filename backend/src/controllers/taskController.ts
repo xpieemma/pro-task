@@ -156,17 +156,19 @@ export const getActivity = asyncHandler(async (req: AuthRequest, res: Response) 
 
 export const addAttachment = asyncHandler(async (req: AuthRequest, res: Response) => {
   const { taskId } = req.params;
+if (!req.file) {
+    res.status(400);
+    throw new Error('No file was uploaded of file type is not allowed')
+}
+
   const task = await Task.findById(taskId);
   
   if (!task || !(await canAccessProject(task.project.toString(), req.user!._id.toString()))) {
-    res.status(404).json({ message: 'Task not found or unauthorized' });
-    return;
+    res.status(404);
+    throw new Error('Task not found');
   }
   
-  if (!req.file) {
-    res.status(400).json({ message: 'No file uploaded' });
-    return;
-  }
+  
 
   const newAttachment = {
     name: req.file.originalname,
@@ -174,6 +176,7 @@ export const addAttachment = asyncHandler(async (req: AuthRequest, res: Response
     public_id: req.file.filename,
     size: req.file.size,
     mimeType: req.file.mimetype,
+    uploadedAt: new Date()
   };
 
   task.attachments?.push(newAttachment);

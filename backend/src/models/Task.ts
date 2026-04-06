@@ -1,6 +1,12 @@
 import mongoose, { Document, Schema } from 'mongoose';
-import { upload } from '../config/cloudinary';
-
+export interface IAttachment {
+  name: string;
+  url: string;
+  public_id?: string;
+  size?: number;
+  mimetype?: string;
+  uploadedAt: Date;
+}
 export interface ITask extends Document {
   title: string;
   description?: string;
@@ -10,6 +16,16 @@ export interface ITask extends Document {
   completed?: boolean;
   attachments?: any[];
 }
+
+const attachmentSchema = new Schema({
+  name: { type: String, required: true },
+  url: { type: String, required: true },
+  public_id: {type: String},
+  size: {type : Number},
+  // filename: { type: String, required: true },
+  mimetype: { type: String},
+  uploadedAt: { type: Date, default: Date.now }
+});
 
 const taskSchema = new Schema<ITask>(
   {
@@ -23,28 +39,10 @@ const taskSchema = new Schema<ITask>(
     dueDate: { type: Date, default: null },
     project: { type: Schema.Types.ObjectId, required: true, ref: 'Project' },
     completed: { type: Boolean, default: false },
-    attachments: { type: Array, default: [] },
+    attachments: [attachmentSchema],
   },
   { timestamps: true }
 );
-const attachmentSchema = new Schema({
-  name: { type: String, required: true },
-  url: { type: String, required: true },
-  public_id: {type: String},
-  size: {type : Number},
-  // filename: { type: String, required: true },
-  mimetype: { type: String},
-  uploadedAt: { type: Date, default: Date.now }
-});
 
-export interface ITask extends Document {
-  title: string;
-  description?: string;
-  status: 'To Do' | 'In Progress' | 'Done';
-  dueDate?: Date | null;
-  project: Schema.Types.ObjectId;
-  completed?: boolean;
-  attachments?: any[];
-}
 
 export const Task = mongoose.model<ITask>('Task', taskSchema);

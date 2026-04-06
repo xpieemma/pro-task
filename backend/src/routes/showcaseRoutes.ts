@@ -4,7 +4,7 @@ import {
   generatePoem, 
   generatePoemHint, 
   generateJsonData, 
-  searchGallery 
+  searchGallery,
 } from '../controllers/showcaseController.js';
 
 const router = Router();
@@ -15,5 +15,6 @@ router.post('/poem', generatePoem);
 router.post('/poem-hint', generatePoemHint);
 router.post('/generate-json', generateJsonData);
 router.get('/gallery', searchGallery);
+// router.post('/moodboard', generateMoodboard)
 
 export default router;

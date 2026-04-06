@@ -10,6 +10,7 @@ const tools = [
   { path: '/showcase/study', emoji: '📚', name: 'Study Studio', desc: 'Notes → AI flashcards & discussion' },
   { path: '/showcase/spotify', emoji: '🎧', name: 'Spotify Vibe', desc: 'Your top tracks & artists (OAuth)' },
   { path: '/showcase/resume', emoji: '📄', name: 'My Resume', desc: 'GitHub repos + professional experience' },
+  { path: '/showcase/moodboard', emoji: '🎨', name: 'Moodboard', desc: 'AI-generated visual concepts' },
 ];
 
 const Showcase = () => {
