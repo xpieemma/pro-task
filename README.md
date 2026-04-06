@@ -191,7 +191,7 @@ export const getProjectById = asyncHandler(async (req: AuthRequest, res: Respons
 
 ```typescript
 // backend/src/server.ts
-const frontendUrl = process.env.FRONTEND_URL?.replace(/\/$/, ''); // ✅ Strip trailing slash
+const frontendUrl = process.env.FRONTEND_URL?.replace(/\/$/, '');
 const allowedOrigins = [frontendUrl, 'http://localhost:5173']
   .filter((url): url is string => Boolean(url));
 ```
