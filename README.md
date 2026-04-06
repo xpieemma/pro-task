@@ -12,11 +12,11 @@
     <a href="https://www.linkedin.com/in/epierr14"><img src="https://img.shields.io/badge/LinkedIn-Connect-0A66C2?style=for-the-badge&logo=linkedin" alt="LinkedIn" /></a>
   </p>
   <p>
-    <img src="https://img.shields.io/badge/MERN-Stack-green" alt="MERN Stack" />
-    <img src="https://img.shields.io/badge/TypeScript-5.3-blue" alt="TypeScript" />
-    <img src="https://img.shields.io/badge/React-18+-61DAFB" alt="React" />
-    <img src="https://img.shields.io/badge/Socket.IO-Real_time-orange" alt="Socket.IO" />
-    <img src="https://img.shields.io/badge/Tailwind-CSS-38B2AC" alt="Tailwind CSS" />
+    <a href="https://www.oracle.com/database/mern-stack/"><img src="https://img.shields.io/badge/MERN-Stack-green" alt="MERN Stack" /></a>
+    <a href="https://www.typescriptlang.org/"><img src="https://img.shields.io/badge/TypeScript-5.3-blue" alt="TypeScript" /></a>
+    <a href="https://reactjs.org/"><img src="https://img.shields.io/badge/React-18+-61DAFB" alt="React" /></a>
+    <a href="https://socket.io/"><img src="https://img.shields.io/badge/Socket.IO-Real_time-orange" alt="Socket.IO" /></a>
+    <a href="https://tailwindcss.com/"><img src="https://img.shields.io/badge/Tailwind-CSS-38B2AC" alt="Tailwind CSS" /></a>
   </p>
 </div>
 

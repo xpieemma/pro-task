@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="64" height="64">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1e2a2e;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#2c553f;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="checkGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#f4c542;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#e0a800;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#d4a373;stop-opacity:0.8" />
+      <stop offset="100%" style="stop-color:#b45f2b;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+
+  <!-- Background circle -->
+  <circle cx="256" cy="256" r="240" fill="url(#bgGrad)" />
+
+  <!-- Progress ring (stylised circular stroke) -->
+  <circle cx="256" cy="256" r="180" fill="none" stroke="url(#ringGrad)" stroke-width="8" stroke-dasharray="1130" stroke-dashoffset="280" stroke-linecap="round" />
+
+  <!-- Outer circle border -->
+  <circle cx="256" cy="256" r="236" fill="none" stroke="#d4b48c" stroke-width="3" opacity="0.3" />
+
+  <!-- Checkmark – represents completion / task -->
+  <path d="M196 260 L236 300 L340 196" fill="none" stroke="url(#checkGrad)" stroke-width="28" stroke-linecap="round" stroke-linejoin="round" />
+
+  <!-- Subtle shadow / accent dots -->
+  <circle cx="256" cy="460" r="6" fill="#f4c542" opacity="0.6" />
+  <circle cx="360" cy="400" r="4" fill="#d4a373" opacity="0.4" />
+  <circle cx="140" cy="380" r="5" fill="#b45f2b" opacity="0.5" />
+
+  <!-- Text "PRO‑TASKER" -->
+  <text x="256" y="490" font-family="'Segoe UI', 'Inter', system-ui, sans-serif" font-size="28" font-weight="700" fill="#fefaf5" text-anchor="middle" letter-spacing="4">
+    PRO‑TASKER
+  </text>
+</svg>
