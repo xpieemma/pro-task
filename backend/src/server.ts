@@ -14,7 +14,7 @@ import jwt from 'jsonwebtoken';
 import { generateStory } from './controllers/aiController.js';
 import webhookRoutes from './routes/webhookRoutes.js';
 import showcaseRoutes from './routes/showcaseRoutes.js';
-
+  
 const requiredEnvVars = ['MONGO_URI', 'JWT_SECRET'];
 requiredEnvVars.forEach((envVar) => {
   if (!process.env[envVar]) {
