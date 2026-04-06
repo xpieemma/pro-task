@@ -7,6 +7,7 @@ cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
   api_secret: process.env.CLOUDINARY_API_SECRET,
+  url: process.env.CLOUDINARY_URL,
 });
 
 
@@ -16,7 +17,7 @@ const storage = new CloudinaryStorage({
   params: async (req, file) => {
     return {
       folder: 'protasker_attachments',
-      resource_type: 'raw', // Crucial: Allows PDFs, Word docs, and Images
+      resource_type: 'raw', 
       public_id: `${Date.now()}-${file.originalname.replace(/[^a-zA-Z0-9]/g, '_')}`
     };
   },
