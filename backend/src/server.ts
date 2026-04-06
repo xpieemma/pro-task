@@ -54,10 +54,6 @@ app.use('/api/projects/:projectId/tasks', taskRoutes);
 app.use('/api/showcase', showcaseRoutes);
 app.post('/api/ai/story', generateStory);
 
-app.use('/api/auth', authRoutes);
-app.use('/api/projects', projectRoutes);
-app.use('/api/projects/:projectId/tasks', taskRoutes);
-
 // GitHub Webhook Listener
 app.use('/api/webhooks', webhookRoutes);
 
