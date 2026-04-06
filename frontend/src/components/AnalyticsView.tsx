@@ -26,6 +26,11 @@ const AnalyticsView = ({ projectId }: { projectId: string }) => {
   if (loading) return <LoadingSpinner />;
   if (!data) return <p className="text-center text-gray-500">Failed to load data.</p>;
 
+  const pieData = data.statusData.map((entry: any, index:number) => ({
+    ...entry,
+    fill: COLORS[index % COLORS.length]
+  }));
+
   return (
     <div className="bg-white rounded-xl shadow-sm p-6">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
@@ -53,18 +58,14 @@ const AnalyticsView = ({ projectId }: { projectId: string }) => {
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
-                  data={data.statusData}
+                  data={pieData}
                   cx="50%"
                   cy="50%"
                   innerRadius={60}
                   outerRadius={80}
                   paddingAngle={5}
                   dataKey="value"
-                >
-                  {data.statusData.map((_entry: any, index: number) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                  ))}
-                </Pie>
+                />
                 <Tooltip />
               </PieChart>
             </ResponsiveContainer>

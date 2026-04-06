@@ -478,7 +478,7 @@ const ProjectDetail = () => {
  const generateAITasks = async () => {
   setIsGeneratingAI(true);
   try {
-    const prompt = `Analyze this project name: "${project.name}" and description: "${project.description}". 
+    const prompt = `Analyze this project name: "${project?.name || ''}" and description: "${project?.description || ''}". 
       Break it down into 3 to 5 logical, actionable tasks. 
       Return a JSON array of objects. Each object must have a "title" string and a short "description" string.`;
 
@@ -539,8 +539,9 @@ const ProjectDetail = () => {
   const inviteCollaborator = async () => {
     if (!inviteEmail.trim()) return;
 
-    const isAlreadyCollaborator = project?.collaborators.some(c => c.email === inviteEmail.trim()) ||
-                                  project?.owner.email === inviteEmail.trim();
+    //Safe chaining to prevent errors if project is not loaded
+    const isAlreadyCollaborator = project?.collaborators?.some(c => c.email === inviteEmail.trim()) ||
+                                  project?.owner?.email === inviteEmail.trim(); // Check if the user is already a collaborator or the owner ... 
     if (isAlreadyCollaborator) {
       toast.error('User is already a collaborator');
       return;
@@ -581,9 +582,9 @@ const ProjectDetail = () => {
         <h3 className="font-semibold mb-2 text-gray-800">Collaborators</h3>
         <div className="flex flex-wrap gap-2 mb-3">
           <span className="bg-gray-100 px-2 py-1 rounded text-sm text-gray-700">
-            {project?.owner.name} (owner)
+            {project?.owner?.name} (owner)
           </span>
-          {project?.collaborators.map((c) => (
+          {project?.collaborators?.map((c) => (
             <span key={c._id} className="bg-gray-100 px-2 py-1 rounded text-sm text-gray-700">
               {c.name}
             </span>
@@ -618,7 +619,7 @@ const ProjectDetail = () => {
             className="text-sm font-medium text-blue-600 bg-blue-50 px-3 py-1.5 rounded-lg hover:bg-blue-100 transition disabled:opacity-50 flex items-center gap-1"
             title={!project?.description ? "Project needs a description first" : "Generate tasks with Gemini"}
           >
-            {isGeneratingAI ? '✨ Thinking...' : '✨ Auto-Generate Tasks'}
+            {isGeneratingAI ? '✨ AI Thinking...' : '✨ Auto-Generate Tasks'}
           </button>
         </div>
         
@@ -696,7 +697,7 @@ const ProjectDetail = () => {
 
       </div>
 
-      {activeView === 'kanban' ? (
+      {activeView === 'kanban' && (
         <>
           <SearchFilter onSearch={setSearch} onFilterStatus={setStatusFilter} />
  
@@ -705,10 +706,11 @@ const ProjectDetail = () => {
             onUpdate={updateTask}
             onDelete={deleteTask}
             onRefresh={fetchTasks}
-            projectOwnerId={project?.owner._id}
+            projectOwnerId={project?.owner?._id}
           />
         </>
-      ) : (
+      )}
+      {activeView === 'calendar' && (
         <CalendarView
           tasks={tasks}
           projectId={id!}
@@ -716,21 +718,15 @@ const ProjectDetail = () => {
           onTaskAdd={addTask}
         />
       )}
-{activeView === 'kanban' && (
-  <>
-    <SearchFilter onSearch={setSearch} onFilterStatus={setStatusFilter} />
-    <KanbanBoard tasks={filteredTasks} onUpdate={updateTask} onDelete={deleteTask} onRefresh={fetchTasks} projectOwnerId={project?.owner._id} />
-  </>
-)}
-{activeView === 'calendar' && (
-  <CalendarView tasks={tasks} projectId={id!} onTaskUpdate={updateTask} onTaskAdd={addTask} />
-)}
-{activeView === 'analytics' && (
-  <AnalyticsView projectId={id!} />
-)}
-      <ActivityFeed projectId={id!} />
+      {activeView === 'analytics' && (
+        <AnalyticsView projectId={id!} />
+      )
+    }
+
+    <ActivityFeed projectId={id!} />
     </div>
   );
 };
+
 
 export default ProjectDetail;

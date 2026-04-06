@@ -18,8 +18,9 @@ const ActivityFeed = ({ projectId }: Props) => {
       const { data } = await api.get(`/projects/${projectId}/tasks/activity`);
       setActivities(data);
       setError(null);
-    } catch (err) {
-      setError("Failed to load activity feed");
+    } catch (err: any) {
+      // setError("Failed to load activity feed");
+      err.response?.data?.message ? setError(err.response.data.message) : setError("Failed to load activity feed");
     } finally {
       setLoading(false);
     }

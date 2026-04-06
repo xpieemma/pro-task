@@ -241,7 +241,7 @@ const [isSubmittingTask, setIsSubmittingTask] = useState(false);
   form.reset();
   setIsSubmittingTask(false);
 }}>
-  <button disabled={isSubmittingTask} type="submit" className="...">
+  <button disabled={isSubmittingTask} type="submit" className="opacity-50 cursor-not-allowed">
     {isSubmittingTask ? 'Creating...' : 'Create Task'}
   </button>
 </form>
