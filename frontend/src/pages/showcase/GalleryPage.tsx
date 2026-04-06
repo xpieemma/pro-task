@@ -188,31 +188,31 @@ import toast from 'react-hot-toast';
 import api from '../../services/api';
 
 const GalleryPage = () => {
-  const [apiKey, setApiKey] = useState(localStorage.getItem('pexels_key') || '');
+  // const [apiKey, setApiKey] = useState(localStorage.getItem('pexels_key') || '');
   const [query, setQuery] = useState('');
   const [photos, setPhotos] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   
   // Only show key input if we don't have one in local storage
-  const [showKeyInput, setShowKeyInput] = useState(!localStorage.getItem('pexels_key'));
+  // const [showKeyInput, setShowKeyInput] = useState(!localStorage.getItem('pexels_key'));
 
-  const saveKey = () => {
-    if (!apiKey.trim()) {
-      toast.error('Please enter a valid API key');
-      return;
-    }
-    localStorage.setItem('pexels_key', apiKey.trim());
-    setShowKeyInput(false);
-    toast.success('Key saved!');
-    fetchPhotos(''); // Fetch default curated photos immediately after saving
-  };
+  // const saveKey = () => {
+  //   if (!apiKey.trim()) {
+  //     toast.error('Please enter a valid API key');
+  //     return;
+  //   }
+  //   localStorage.setItem('pexels_key', apiKey.trim());
+  //   setShowKeyInput(false);
+  //   toast.success('Key saved!');
+  //   fetchPhotos(''); // Fetch default curated photos immediately after saving
+  // };
 
-  const removeKey = () => {
-    localStorage.removeItem('pexels_key');
-    setApiKey('');
-    setShowKeyInput(true);
-    setPhotos([]);
-  };
+  // const removeKey = () => {
+  //   localStorage.removeItem('pexels_key');
+  //   setApiKey('');
+  //   setShowKeyInput(true);
+  //   setPhotos([]);
+  // };
 
   // Wrapped in useCallback so we can safely run it in useEffect
   // const fetchPhotos = useCallback(async (searchQuery: string) => {
@@ -280,7 +280,7 @@ const GalleryPage = () => {
   return (
     <PublicLayout title="🖼️ Pexels Gallery">
       
-      {showKeyInput ? (
+      {/* {showKeyInput ? (
         <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
           <h3 className="font-bold text-gray-800 mb-2">Connect Pexels</h3>
           <p className="mb-4 text-gray-600 text-sm">
@@ -309,13 +309,18 @@ const GalleryPage = () => {
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wider">Search Images</h2>
             {/* Allows user to fix a broken API key */}
-            <button 
+            {/* <button 
               onClick={removeKey} 
               className="text-xs text-gray-400 hover:text-red-500 transition-colors"
             >
               Disconnect API Key
             </button>
-          </div>
+          </div>  */}
+<div className="bg-white rounded-xl shadow-sm p-6 mb-6 mt-6">
+        
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wider">Search Images</h2>
+        </div>
 
           <div className="flex gap-2 mb-6">
             <input 
@@ -374,7 +379,6 @@ const GalleryPage = () => {
             </div>
           )}
         </div>
-      )}
     </PublicLayout>
   );
 };

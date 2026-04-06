@@ -29,7 +29,7 @@ const CurrencyExplorer = () => {
     <PublicLayout title="💱 Currency Explorer">
       <div className="bg-white rounded-xl shadow-sm p-6">
         <div className="flex flex-wrap gap-4 mb-4">
-          <input type="number" value={amount} onChange={e => setAmount(parseFloat(e.target.value))} className="border rounded-lg p-2 w-32" />
+          <input type="number" value={Number.isNaN(amount) ? "" : amount} onChange={e => setAmount(parseFloat(e.target.value))} className="border rounded-lg p-2 w-32" />
           <select value={fromCurr} onChange={e => setFromCurr(e.target.value)} className="border rounded-lg p-2">
             {rates && Object.keys(rates).slice(0, 20).map(c => <option key={c}>{c}</option>)}
           </select>
@@ -38,7 +38,9 @@ const CurrencyExplorer = () => {
             {rates && Object.keys(rates).slice(0, 20).map(c => <option key={c}>{c}</option>)}
           </select>
         </div>
-        <div className="text-2xl font-bold">{result?.toFixed(2)} {toCurr}</div>
+        <div className="text-2xl font-bold">
+          {    isNaN(result as number) ? '0.00':  result?.toFixed(2) || '0.00'} {toCurr}
+          </div>
       </div>
     </PublicLayout>
   );

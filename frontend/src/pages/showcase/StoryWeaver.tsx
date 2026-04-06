@@ -1,8 +1,9 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState } from 'react';
 import PublicLayout from '../../components/PublicLayout';
 import toast from 'react-hot-toast';
-import { GoogleGenerativeAI } from '@google/generative-ai';
 import api from '../../services/api';
+
+// const GEMINI_STORY_KEY = import.meta.env.VITE_GEMINI_STORY_KEY || '';
 
 const StoryWeaver = () => {
   const [segments, setSegments] = useState<{ text: string; author: 'user' | 'ai' }[]>([]);
@@ -11,18 +12,18 @@ const StoryWeaver = () => {
   const [loading, setLoading] = useState(false);
   
  
-  const [apiKey, setApiKey] = useState(localStorage.getItem('gemini_api_key1') || '');
-  const [isKeySetup, setIsKeySetup] = useState(!!localStorage.getItem('gemini_api_key1'));
+  // const [apiKey, setApiKey] = useState(localStorage.getItem('gemini_api_key1') || '');
+  // const [isKeySetup, setIsKeySetup] = useState(!!localStorage.getItem('gemini_api_key1'));
 
-  const abortControllerRef = useRef<AbortController | null>(null);
+  // const abortControllerRef = useRef<AbortController | null>(null);
 
-  const saveApiKey = (key: string) => {
-    if (!key.trim()) return toast.error('Please enter a valid API key');
-    localStorage.setItem('gemini_api_key1', key.trim());
-    setApiKey(key.trim());
-    setIsKeySetup(true);
-    toast.success('Gemini API Key saved locally!');
-  };
+  // const saveApiKey = (key: string) => {
+  //   if (!key.trim()) return toast.error('Please enter a valid API key');
+  //   localStorage.setItem('gemini_api_key1', key.trim());
+  //   setApiKey(key.trim());
+  //   setIsKeySetup(true);
+  //   toast.success('Gemini API Key saved locally!');
+  // };
 
   const addSegment = (text: string, author: 'user' | 'ai') => {
     setSegments(prev => [...prev, { text, author }]);
@@ -61,14 +62,31 @@ const StoryWeaver = () => {
 
 
 const callAI = async (storySoFar: string) => {
+
+  // if (!GEMINI_STORY_KEY) {
+  //     toast.error('Story Weaver API Key is missing in your .env file.');
+  //     setPhase('user_two_more');
+  //     return;
+  //   }
+
   setLoading(true);
   try {
     // Talk to YOUR backend, not Gemini
+    // const genAI = new GoogleGenerativeAI(GEMINI_STORY_KEY);
     const res = await api.post('/showcase/story', { storySoFar });
-    addSegment(res.data.text.trim(), 'ai');
+addSegment(res.data.text.trim(), 'ai');
+      // const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+      // const prompt = `You are a creative co-author. Continue this story with exactly ONE sentence. Do not include any conversational filler, introductory text, or quotes. Just write the next sentence:\n\n${storySoFar}\n\nNext sentence:`;
+      
+      // const result = await model.generateContent(prompt);
+      // const sentence = result.response.text();
+
+    // const res = await api.post('/showcase/story', { storySoFar });
+    // addSegment(sentence.trim(), 'ai');
     setPhase('user_two_more');
     setInput(''); 
   } catch (err) {
+    console.error('Gemini Error:', err);
     toast.error('AI failed to respond. Please write manually.');
     setPhase('user_two_more');
   } finally {
@@ -117,20 +135,20 @@ const callAI = async (storySoFar: string) => {
     setSegments([]);
     setInput('');
     setPhase('first_three');
-    if (abortControllerRef.current) abortControllerRef.current.abort();
+    // if (abortControllerRef.current) abortControllerRef.current.abort();
   };
 
-  useEffect(() => {
-    return () => {
-      if (abortControllerRef.current) abortControllerRef.current.abort();
-    };
-  }, []);
+  // useEffect(() => {
+  //   return () => {
+  //     if (abortControllerRef.current) abortControllerRef.current.abort();
+  //   };
+  // }, []);
 
   return (
     <PublicLayout title="📖 Story Weaver (Powered by Gemini)">
       
     
-      {!isKeySetup && (
+      {/* {!isKeySetup && (
         <div className="bg-blue-50 border border-blue-200 rounded-xl p-6 mb-6">
           <h3 className="font-bold text-blue-800 mb-2">Connect Google Gemini</h3>
           <p className="text-sm text-blue-600 mb-4">
@@ -170,9 +188,12 @@ const callAI = async (storySoFar: string) => {
             >
               Disconnect API Key
             </button>
-          </div>
+          </div> */}
 
-          
+          <div className="bg-white rounded-xl shadow-sm p-6 mt-6 mb-6">
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wider">Your Story</h2>
+        </div>
           {segments.length > 0 && (
             <div className="space-y-3 max-h-[500px] overflow-y-auto mb-6 p-4 bg-gray-50 rounded-lg border">
               {segments.map((seg, idx) => (
@@ -218,7 +239,6 @@ const callAI = async (storySoFar: string) => {
             </button>
           </div>
         </div>
-      )}
     </PublicLayout>
   );
 };

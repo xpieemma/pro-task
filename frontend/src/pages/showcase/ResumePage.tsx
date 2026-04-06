@@ -108,7 +108,7 @@ const revealEmail = () => {
             <div className="text-xs text-gray-500 animate-pulse bg-gray-50 p-4 rounded-lg">Fetching repositories...</div>
           ) : (
             <div className="grid sm:grid-cols-2 gap-3">
-              {repos.slice(0, 4).map(repo => (
+              {repos.slice(0, 6).map(repo => (
                 <div key={repo.id} className="border border-gray-200 bg-gray-50 rounded-lg p-3 hover:shadow-sm transition-shadow">
                   <a href={repo.html_url} target="_blank" rel="noreferrer" className="font-semibold text-xs text-blue-600 hover:underline truncate block">
                     {repo.name}

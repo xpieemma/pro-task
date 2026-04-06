@@ -1,7 +1,9 @@
-import { useState, useRef, useEffect } from 'react';
-import PublicLayout from '../../components/PublicLayout';
-import toast from 'react-hot-toast';
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { useState, useRef, useEffect } from "react";
+import PublicLayout from "../../components/PublicLayout";
+import toast from "react-hot-toast";
+import api from "../../services/api";
+
+// const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY || '';
 
 interface Flashcard {
   question: string;
@@ -14,7 +16,7 @@ interface DiscussionQ {
 }
 
 const StudyStudio = () => {
-  const [notes, setNotes] = useState('');
+  const [notes, setNotes] = useState("");
   const [flashcards, setFlashcards] = useState<Flashcard[]>([]);
   const [discussion, setDiscussion] = useState<DiscussionQ[]>([]);
   const [loadingFlash, setLoadingFlash] = useState(false);
@@ -22,42 +24,44 @@ const StudyStudio = () => {
   const [currentCard, setCurrentCard] = useState(0);
   const [showAnswer, setShowAnswer] = useState(false);
 
-
-  const [apiKey, setApiKey] = useState(localStorage.getItem('gemini_api_key0') || '');
-  const [isKeySetup, setIsKeySetup] = useState(!!localStorage.getItem('gemini_api_key0'));
+  // const [apiKey, setApiKey] = useState(localStorage.getItem('gemini_api_key0') || '');
+  // const [isKeySetup, setIsKeySetup] = useState(!!localStorage.getItem('gemini_api_key0'));
 
   const abortControllerRef = useRef<AbortController | null>(null);
 
-  const saveApiKey = (key: string) => {
-    if (!key.trim()) return toast.error('Please enter a valid API key');
-    localStorage.setItem('gemini_api_key0', key.trim());
-    setApiKey(key.trim());
-    setIsKeySetup(true);
-    toast.success('Gemini API Key saved locally!');
-  };
+  // const saveApiKey = (key: string) => {
+  //   if (!key.trim()) return toast.error('Please enter a valid API key');
+  //   localStorage.setItem('gemini_api_key0', key.trim());
+  //   setApiKey(key.trim());
+  //   setIsKeySetup(true);
+  //   toast.success('Gemini API Key saved locally!');
+  // };
 
+//   const callGemini = async (prompt: string, signal: AbortSignal) => {
+//     // if (!GEMINI_API_KEY) throw new Error("API_KEY_MISSING");
+//     const res = await api.post('/showcase/generate-json', { prompt });
+// const parsed = res.data.data; // Your backend already parses it!
 
-  const callGemini = async (prompt: string, signal: AbortSignal) => {
-    if (!apiKey) throw new Error('API_KEY_MISSING');
-    
-    const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ 
-      model: 'gemini-1.5-flash',
-      generationConfig: {
-        responseMimeType: "application/json", 
-      }
-    });
+//     // const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
+//     const model = genAI.getGenerativeModel({
+//       model: "gemini-1.5-flash",
+//       generationConfig: {
+//         responseMimeType: "application/json",
+//       },
+//     });
 
-    const timeoutSignal = AbortSignal.timeout(30000);
-    const combinedSignal = AbortSignal.any ? AbortSignal.any([signal, timeoutSignal]) : signal;
+//     const timeoutSignal = AbortSignal.timeout(30000);
+//     const combinedSignal = AbortSignal.any
+//       ? AbortSignal.any([signal, timeoutSignal])
+//       : signal;
 
-    const result = await model.generateContent(
-      { contents: [{ role: 'user', parts: [{ text: prompt }] }] },
-      { signal: combinedSignal }
-    );
-    
-    return result.response.text();
-  };
+//     const result = await model.generateContent(
+//       { contents: [{ role: "user", parts: [{ text: prompt }] }] },
+//       { signal: combinedSignal },
+//     );
+
+//     return result.response.text();
+//   };
 
   const generateFlashcards = async () => {
     setLoadingFlash(true);
@@ -66,20 +70,23 @@ const StudyStudio = () => {
 
     try {
       const prompt = `Generate exactly 5 to 8 flashcards from the following notes. Return a JSON array of objects, where each object has a "question" string and an "answer" string. Notes to use:\n\n${notes}`;
-      const rawJson = await callGemini(prompt, controller.signal);
-
-      const parsed = JSON.parse(rawJson);
-      const valid = Array.isArray(parsed) && parsed.every(i => i.question && i.answer);
+      // const rawJson = await callGemini(prompt, controller.signal);
+const res = await api.post('/showcase/generate-json', { prompt });
+      // const parsed = JSON.parse(rawJson);
+      const parsed = res.data.data
+      const valid =
+        Array.isArray(parsed) && parsed.every((i) => i.question && i.answer);
       if (!valid) throw new Error("Invalid flashcard format returned by AI");
 
       setFlashcards(parsed);
       setCurrentCard(0);
       setShowAnswer(false);
     } catch (err: any) {
-      if (err.message === 'API_KEY_MISSING') return toast.error('Gemini API Key is missing.');
-      if (err.name !== 'AbortError' && !controller.signal.aborted) {
-         console.error(err);
-         toast.error("Failed to generate flashcards");
+      if (err.message === "API_KEY_MISSING")
+        return toast.error("Server is missing the Gemini API key.");
+      if (err.name !== "AbortError" && !controller.signal.aborted) {
+        console.error(err);
+        toast.error("Failed to generate flashcards");
       }
     } finally {
       setLoadingFlash(false);
@@ -93,18 +100,22 @@ const StudyStudio = () => {
 
     try {
       const prompt = `Generate exactly 4 discussion questions based on the following notes. Return a JSON array of objects, where each object has a "question" string and a "hint" string to guide the student. Notes to use:\n\n${notes}`;
-      const rawJson = await callGemini(prompt, controller.signal);
-      
-      const parsed = JSON.parse(rawJson);
-      const valid = Array.isArray(parsed) && parsed.every(item => item.question && item.hint);
-      if (!valid) throw new Error('Invalid discussion format returned by AI');
-      
+      // const rawJson = await callGemini(prompt, controller.signal);
+
+      // const parsed = JSON.parse(rawJson);
+      const res = await api.post('/showcase/generate-json', { prompt });
+      const parsed = res.data.data;
+      const valid =
+        Array.isArray(parsed) &&
+        parsed.every((item) => item.question && item.hint);
+      if (!valid) throw new Error("Invalid discussion format returned by AI");
+
       setDiscussion(parsed);
     } catch (err: any) {
-      if (err.message === 'API_KEY_MISSING') return; 
-      if (err.name !== 'AbortError' && !controller.signal.aborted) {
-         console.error(err);
-         toast.error('Failed to generate discussion questions');
+      if (err.message === "API_KEY_MISSING") return;
+      if (err.name !== "AbortError" && !controller.signal.aborted) {
+        console.error(err);
+        toast.error("Failed to generate discussion questions");
       }
     } finally {
       setLoadingDisc(false);
@@ -112,8 +123,8 @@ const StudyStudio = () => {
   };
 
   const generateAll = async () => {
-    if (!notes.trim()) return toast.error('Enter some notes first');
-    if (!apiKey) return toast.error('Please connect your Gemini API Key first.');
+    if (!notes.trim()) return toast.error("Enter some notes first");
+    // if (!apiKey) return toast.error('Please connect your Gemini API Key first.');
     await Promise.allSettled([generateFlashcards(), generateDiscussion()]);
   };
 
@@ -127,9 +138,7 @@ const StudyStudio = () => {
 
   return (
     <PublicLayout title="📚 Study Studio (Powered by Gemini)">
-      
-  
-      {!isKeySetup && (
+      {/* {!isKeySetup && (
         <div className="bg-blue-50 border border-blue-200 rounded-xl p-6 mb-6">
           <h3 className="font-bold text-blue-800 mb-2">Connect Google Gemini</h3>
           <p className="text-sm text-blue-600 mb-4">
@@ -170,29 +179,34 @@ const StudyStudio = () => {
             >
               Disconnect API Key
             </button>
-          )}
+          )} */}
 
-          <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4">Your Notes</h2>
+      <div className="grid md:grid-cols-2 gap-6 mt-6">
+        <div className="bg-white rounded-xl shadow-sm p-6">
+          <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4">
+            Your Notes
+          </h2>
           <textarea
             value={notes}
-            onChange={e => setNotes(e.target.value)}
+            onChange={(e) => setNotes(e.target.value)}
             rows={12}
             className="w-full border rounded-lg p-3 mb-4 focus:ring-2 focus:ring-blue-400 outline-none transition-shadow"
             placeholder="Paste your lecture notes, textbook chapters, or study guides here..."
-            disabled={!isKeySetup}
+            // disabled={!isKeySetup}
           />
           <button
             onClick={generateAll}
-            disabled={!isKeySetup || loadingFlash || loadingDisc}
+            disabled={loadingFlash || loadingDisc}
             className="w-full bg-gray-800 text-white px-4 py-3 rounded-lg disabled:opacity-50 hover:bg-gray-900 transition-colors font-medium"
           >
-            {loadingFlash || loadingDisc ? 'Gemini is reading your notes...' : 'Generate Study Materials'}
+            {loadingFlash || loadingDisc
+              ? "Gemini is reading your notes..."
+              : "Generate Study Materials"}
           </button>
         </div>
 
-      
+        {/* Output Column */}
         <div className="space-y-6">
-          
           {flashcards.length > 0 && (
             <div className="bg-white rounded-xl shadow-sm p-6">
               <h3 className="font-bold mb-4 text-gray-800">Flashcards</h3>
@@ -200,8 +214,8 @@ const StudyStudio = () => {
                 className="border-2 border-dashed border-gray-200 rounded-xl p-6 cursor-pointer hover:bg-blue-50 hover:border-blue-300 transition-colors min-h-[200px] flex flex-col justify-center items-center"
                 onClick={() => setShowAnswer(!showAnswer)}
                 onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault(); 
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
                     setShowAnswer(!showAnswer);
                   }
                 }}
@@ -210,16 +224,21 @@ const StudyStudio = () => {
                 aria-pressed={showAnswer}
               >
                 <div className="font-semibold text-xl text-center text-gray-800">
-                  {showAnswer ? flashcards[currentCard].answer : flashcards[currentCard].question}
+                  {showAnswer
+                    ? flashcards[currentCard].answer
+                    : flashcards[currentCard].question}
                 </div>
                 <div className="text-sm text-gray-400 mt-6 font-medium uppercase tracking-widest">
-                  {showAnswer ? 'Answer' : 'Question'} (Spacebar to flip)
+                  {showAnswer ? "Answer" : "Question"} (Spacebar to flip)
                 </div>
               </div>
-              
+
               <div className="flex justify-between items-center mt-6">
                 <button
-                  onClick={() => { setCurrentCard(prev => Math.max(0, prev - 1)); setShowAnswer(false); }}
+                  onClick={() => {
+                    setCurrentCard((prev) => Math.max(0, prev - 1));
+                    setShowAnswer(false);
+                  }}
                   disabled={currentCard === 0}
                   className="text-blue-600 font-medium disabled:opacity-30 hover:text-blue-800 transition-colors"
                 >
@@ -229,7 +248,12 @@ const StudyStudio = () => {
                   {currentCard + 1} / {flashcards.length}
                 </span>
                 <button
-                  onClick={() => { setCurrentCard(prev => Math.min(flashcards.length - 1, prev + 1)); setShowAnswer(false); }}
+                  onClick={() => {
+                    setCurrentCard((prev) =>
+                      Math.min(flashcards.length - 1, prev + 1),
+                    );
+                    setShowAnswer(false);
+                  }}
                   disabled={currentCard === flashcards.length - 1}
                   className="text-blue-600 font-medium disabled:opacity-30 hover:text-blue-800 transition-colors"
                 >
@@ -239,16 +263,24 @@ const StudyStudio = () => {
             </div>
           )}
 
-       
           {discussion.length > 0 && (
             <div className="bg-white rounded-xl shadow-sm p-6">
-              <h3 className="font-bold mb-4 text-gray-800">Discussion Questions</h3>
+              <h3 className="font-bold mb-4 text-gray-800">
+                Discussion Questions
+              </h3>
               <div className="space-y-4">
                 {discussion.map((q, i) => (
-                  <details key={i} className="border border-gray-100 rounded-lg p-4 group bg-gray-50">
+                  <details
+                    key={i}
+                    className="border border-gray-100 rounded-lg p-4 group bg-gray-50"
+                  >
                     <summary className="cursor-pointer font-medium text-gray-800 group-hover:text-blue-600 transition-colors outline-none list-none flex justify-between items-center">
-                      <span>{i + 1}. {q.question}</span>
-                      <span className="text-gray-400 text-sm ml-4 group-open:hidden">Show Hint &darr;</span>
+                      <span>
+                        {i + 1}. {q.question}
+                      </span>
+                      <span className="text-gray-400 text-sm ml-4 group-open:hidden">
+                        Show Hint &darr;
+                      </span>
                     </summary>
                     <div className="bg-white rounded-md p-3 mt-3 text-sm text-gray-600 border border-gray-200 shadow-sm leading-relaxed">
                       💡 <strong>Hint:</strong> {q.hint}
@@ -262,15 +294,19 @@ const StudyStudio = () => {
           {loadingFlash && (
             <div className="bg-white rounded-xl shadow-sm p-8 flex flex-col items-center justify-center">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mb-4"></div>
-              <p className="text-gray-500 font-medium animate-pulse">Building your flashcards...</p>
+              <p className="text-gray-500 font-medium animate-pulse">
+                Building your flashcards...
+              </p>
             </div>
           )}
           {loadingDisc && !loadingFlash && (
             <div className="bg-white rounded-xl shadow-sm p-8 flex flex-col items-center justify-center">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-500 mb-4"></div>
-              <p className="text-gray-500 font-medium animate-pulse">Drafting discussion questions...</p>
+              <p className="text-gray-500 font-medium animate-pulse">
+                Drafting discussion questions...
+              </p>
             </div>
-          )} 
+          )}
         </div>
       </div>
     </PublicLayout>

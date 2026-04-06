@@ -4,8 +4,8 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 import Groq from 'groq-sdk';
 
 // Initialize SDKs using backend environment variables
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
-const genAIx = new GoogleGenerativeAI(process.env.GEMINI_API_KEYx || '');
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_STORY_KEY || '');
+const genAIx = new GoogleGenerativeAI(process.env.GEMINI_STUDY_KEY || '');
 const genAIModel = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY || '' });
 

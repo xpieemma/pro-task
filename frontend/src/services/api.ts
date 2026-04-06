@@ -10,4 +10,20 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+api.interceptors.response.use(
+  (response) => {
+    // If the request succeeds, just return the data normally
+    return response;
+  },
+  (error) => {
+    // If the backend kicks back a 401 Unauthorized (invalid/expired token)
+    if (error.response && error.response.status === 401) {
+      console.warn('Token expired or invalid. Logging out...');
+      localStorage.removeItem('token'); // Clear the bad token
+      window.location.href = '/login';  // Force redirect to login page
+    }
+    return Promise.reject(error);
+  }
+);
+
 export default api;

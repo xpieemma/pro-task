@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect} from 'react';
 import PublicLayout from '../../components/PublicLayout';
 
 
@@ -15,9 +15,11 @@ const WeatherMood = () => {
   const [locationName, setLocationName] = useState('');
     const [error, setError] = useState(false);
   
- const fetchWeather = async (lat: number, lon: number, cityName: string) => {
+ const fetchWeather = async (lat: number, lon: number) => {
     const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&temperature_unit=fahrenheit&windspeed_unit=mph&hourly=relativehumidity_2m,pressure_msl`;
     const res = await fetch(url);
+if (!res.ok) throw new Error('Weather API failed');
+
     const data = await res.json();
     return {
       temperature: data.current_weather.temperature,
@@ -26,68 +28,68 @@ const WeatherMood = () => {
       pressure: data.hourly?.pressure_msl?.[0],
     };
   };
-  const loadingRef = useRef(false);
+  // const loadingRef = useRef(false);
 
-  useEffect(() => {
-    loadingRef.current = loading;
-  }, [loading]);
+  // useEffect(() => {
+  //   loadingRef.current = loading;
+  // }, [loading]);
 
+  
 
   useEffect(() => {
     let isMounted = true;
-let timeoutTriggered = false;
+// let timeoutTriggered = false;
+let timeoutId: ReturnType<typeof setTimeout>;
 
-const timeoutId = setTimeout(() => {
-      if (isMounted && loadingRef.current && !timeoutTriggered) {
-        timeoutTriggered = true;
-        // Fallback after 10 seconds
-        setLocationName('Newark, NJ');
-        fetchWeather(40.7357, -74.1724, 'Newark, NJ')
-          .then(weatherData => isMounted && setWeather(weatherData))
-          .catch(() => isMounted && setError(true))
-          .finally(() => isMounted && setLoading(false));
-      }
-    }, 10000);
- if (!navigator.geolocation) {
-    
+const loadFallback = async () => {
+      if (!isMounted) return;
       setLocationName('Newark, NJ');
-      fetchWeather(40.7357, -74.1724, 'Newark, NJ')
-        .then(weatherData => isMounted && setWeather(weatherData))
-        .catch(() => isMounted && setError(true))
-        .finally(() => isMounted && setLoading(false));
-      return () => clearTimeout(timeoutId);
+      try {
+        const weatherData = await fetchWeather(40.7357, -74.1724);
+        if (isMounted) setWeather(weatherData);
+      } catch {
+        if (isMounted) setError(true);
+      } finally {
+        if (isMounted) setLoading(false);
+      }
+    };
+    if (!navigator.geolocation) {
+      loadFallback();
+      return;
     }
+
+
+timeoutId = setTimeout(() => {
+  if (isMounted && loading && !timeoutId) {
+    loadFallback();
+  }
+}, 10000);
+ 
     
     
       navigator.geolocation.getCurrentPosition(
          async (pos) => {
-          if (!timeoutTriggered) {
         clearTimeout(timeoutId);
+        if (!isMounted) return;
         const { latitude, longitude } = pos.coords;
         
         const city = `${latitude.toFixed(2)}, ${longitude.toFixed(2)}`;
         setLocationName(city);
         try {
-          const weatherData = await fetchWeather(latitude, longitude, city);
+          const weatherData = await fetchWeather(latitude, longitude);
           if (isMounted) setWeather(weatherData);
         } catch {
           if (isMounted) setError(true);
         } finally {
           if (isMounted) setLoading(false);
         }
-      }
       },
       () => {
   
-        if (!timeoutTriggered) {
+       
         clearTimeout(timeoutId);
-        setLocationName('Newark, NJ');
-        fetchWeather(40.7357, -74.1724, 'Newark, NJ')
-          .then(weatherData => isMounted && setWeather(weatherData))
-          .catch(() => isMounted && setError(true))
-          .finally(() => isMounted && setLoading(false));
+       loadFallback();
       }
-    }
       );
     return () => {
       isMounted = false;

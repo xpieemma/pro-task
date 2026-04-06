@@ -15,6 +15,7 @@ interface AuthContextType {
   register: (name: string, email: string, password: string) => Promise<void>;
   loginAsGuest: () => Promise<void>;
   loginAsDemo: () => Promise<void>;
+  setAuthData: (data: any) => void;
   navigate: (path: string) => void;
   logout: () => void;
 }
@@ -93,6 +94,12 @@ const loginAsDemo = async () => {
     }
 };
 
+const setAuthData = (data: any) => {
+  localStorage.setItem('token', data.token);
+  localStorage.setItem('userInfo', JSON.stringify(data));
+  setUser(data);
+};
+
   const logout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('userInfo');
@@ -103,7 +110,7 @@ const loginAsDemo = async () => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, loginAsGuest, loginAsDemo, navigate, logout }}>
+    <AuthContext.Provider value={{ user, loading, login, register, loginAsGuest, loginAsDemo, navigate, logout ,setAuthData}}>
       {children}
     </AuthContext.Provider>
   );
