@@ -5,7 +5,7 @@ let socket: Socket | null = null;
 export const connectSocket = (token: string): Socket => {
   if (socket) return socket;
   socket = io(
-    process.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5000',
+    import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5000',
     {
       auth: { token },
       transports: ['websocket'],
